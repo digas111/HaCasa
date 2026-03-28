@@ -1,0 +1,61 @@
+.bg-peach {
+    background-color: $peach;
+}
+
+.bg-green {
+    background-color: $green;
+}
+
+.bg-red {
+    background-color: $red;
+}
+
+.bg-blue {
+    background-color: $blue;
+}
+
+.bg-yellow {
+    background-color: $yellow;
+}
+
+.bg-purple {
+    background-color: $purple;
+}
+
+.bg-orange {
+    background-color: $orange;
+}
+
+.bg-gold {
+    background-color: $gold;
+}
+
+.bg-gray-blue {
+    background-color: $gray-blue;
+}
+
+.bg-black {
+    background-color: $black;
+}
+
+.highlight, pre.highlightt {
+    line-height: 1;
+}
+
+
+.entry-type-ha {
+  display: inline-block; 
+  background-color: #2C84FA; 
+  border-radius: 50%; 
+  width: 10px; 
+  height: 10px;
+}
+
+.entry-type-hacasa {
+  display: inline-block; 
+  background-color: $peach; 
+  border-radius: 50%; 
+  width: 10px; 
+  height: 10px;
+  margin-right: 2px;
+}

@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Docs: Start Jekyll",
+      "type": "shell",
+      "command": "/opt/homebrew/opt/ruby@3.3/bin/bundle",
+      "args": [
+        "exec",
+        "jekyll",
+        "serve",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "4000"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/docs"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
