@@ -4,7 +4,8 @@ theme: just-the-docs
 logo: "/assets/images/logo.svg"
 favicon_ico: "/assets/images/favicon.svg"
 
-url: https://damianeickhoff.github.io/hacasa-docs
+url: https://digas111.github.io
+baseurl: /HaCasa
 
 # Color scheme supports "light" (default) and "dark"
 color_scheme: hacasa
@@ -19,9 +20,4 @@ callouts:
 # Aux links for the upper right navigation
 aux_links:
   "HaCasa on GitHub":
-    - "https://github.com/damianeickhoff/HaCasa"
-
-callouts:
-  warning:
-    title: Warning
-    color: red
+    - "https://github.com/digas111/HaCasa"

@@ -46,3 +46,16 @@ With variables, you can change certain aspects in the card, eg. enabling the sli
 Every card you will see on this documentation page have all the needed and optional variables described. Based on round color, you can see if its a Home Assistant default Entry or a variable from HaCasa.
 
 **Legend:** <span class="entry-type-ha"></span> Home Assistant Entry - <span class="entry-type-hacasa"></span> HaCasa variable
+
+## Custom templates
+
+HaCasa also ships custom templates for more specific devices and workflows. These live in `dashboard/HaCasa/templates/custom_templates` and are documented in this cards section:
+
+- `custom_hc_cover_card`
+- `hc_battery_card`
+- `hc_climate_mode_card`
+- `hc_dishwasher_card`
+- `hc_number_card`
+- `hc_toggle_graph_card`
+- `hc_vacuum_card`
+- `hc_washing_machine_card`

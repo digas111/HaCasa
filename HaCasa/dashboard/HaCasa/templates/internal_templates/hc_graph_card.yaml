@@ -1,14 +1,14 @@
 hc_graph_card:
   variables:
-    graph_color: 'var(--color-blue)'
-    graph_background: ''
-    show_graph_line: true
+    graph_color: "var(--color-blue)"
+    graph_background: ""
+    show_graph_line: false
     show_graph_fill: false
     show_icon: false
   show_state: true
   styles:
     card:
-      - background: '[[[ return variables.graph_background ]]]'
+      - background: "[[[ return variables.graph_background ]]]"
       - padding: 20px
     grid:
       - grid-template-areas: |
@@ -27,7 +27,7 @@ hc_graph_card:
       - font-weight: 700
       - font-size: 35px
     icon:
-      - width: 50%
+      - width: 62%
       - display: |
           [[[
             if (variables.show_icon) {
@@ -40,8 +40,8 @@ hc_graph_card:
     img_cell:
       - justify-self: end
       - align-self: start
-      - width: 35px
-      - height: 35px
+      - width: 42px
+      - height: 42px
       - margin-right: 12px
       - border-radius: 50%
     custom_fields:
@@ -54,23 +54,23 @@ hc_graph_card:
         - z-index: 1
       more_info:
         - padding: 0
-        - margin: 0               
+        - margin: 0
   custom_fields:
     graph:
       card:
         type: custom:mini-graph-card
         entities:
-          - entity: '[[[ return entity.entity_id ]]]'
+          - entity: "[[[ return entity.entity_id ]]]"
             show_fill: "[[[ return variables.show_graph_fill ]]]"
             show_line: "[[[ return variables.show_graph_line ]]]"
-        animate: true             
+        animate: true
         show:
           name: false
           icon: false
           state: false
         line_width: 1
         height: 50
-        line_color: '[[[ return variables.graph_color ]]]'
+        line_color: "[[[ return variables.graph_color ]]]"
         card_mod:
           style: |
             ha-card {

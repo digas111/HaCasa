@@ -8,7 +8,7 @@ hc_media_card:
     hc_background_color: var(--color-purple)
   state_display: >
     [[[ return states[entity.entity_id].attributes.media_artist ||
-    'idle' ]]] 
+    'idle' ]]]
   label: >
     [[[ return states[entity.entity_id].attributes.media_title ||
     'Nothing is playing']]]
@@ -83,7 +83,7 @@ hc_media_card:
               } else {
                 return 'center / cover no-repeat url("' + states[entity.entity_id].attributes.entity_picture + '")';
               }
-            ]]]         
+            ]]]
   custom_fields:
     background_cover: ""
     play:
@@ -110,6 +110,7 @@ hc_media_card:
             icon: mdi:pause
         tap_action:
           action: perform-action
+          haptic: heavy
           perform_action: media_player.media_play_pause
           target:
             entity_id: "[[[ return entity.entity_id ]]]"
@@ -122,6 +123,7 @@ hc_media_card:
         styles: *item_styles
         tap_action:
           action: perform-action
+          haptic: heavy
           perform_action: media_player.media_next_track
           target:
             entity_id: "[[[ return entity.entity_id ]]]"
@@ -134,6 +136,7 @@ hc_media_card:
         styles: *item_styles
         tap_action:
           action: perform-action
+          haptic: heavy
           perform_action: media_player.media_previous_track
           target:
             entity_id: "[[[ return entity.entity_id ]]]"

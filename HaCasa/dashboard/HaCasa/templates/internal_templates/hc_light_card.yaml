@@ -1,8 +1,15 @@
 hc_light_card:
-  icon: fapro:lightbulb-on
+  icon: mdi:lightbulb
   template: hc_base_card
   variables:
-    enable_slider: false
+    enable_slider: |
+      [[[
+        if (states[entity.entity_id].attributes.brightness) {
+          return true;
+        } else {
+          return false;
+        }
+      ]]]
   label: |
     [[[
       if (states[entity.entity_id].attributes.brightness) {
@@ -10,18 +17,27 @@ hc_light_card:
         return variables.custom_label + (bri ? bri + '%': 'Off');
       }
       else {
-        return variables.custom_label + states[entity.entity_id].state;
+        return '';
       }
     ]]]
   styles:
+    name:
+      - text-align: left
+      - font-size: 18px
+      - font-weight: 500
+      - justify-self: start
+      - align-self: start
+      - overflow: visible
+    icon:
+      - color: white
     grid:
       - grid-template-areas: |
-            [[[
-              if (variables.enable_slider && states[entity.entity_id].attributes.brightness) {
-                  return '"n i" "l i" "slider slider"';
-              }
-                return '". i" "n n" "l l"';
-            ]]]
+          [[[
+            if (variables.enable_slider && states[entity.entity_id].attributes.brightness) {
+                return '"n i" "l i" "slider slider"';
+            }
+              return '". i" "n n" "l l"';
+          ]]]
       - grid-template-rows: min-content min-content 1fr
     custom_fields:
       slider:
@@ -31,10 +47,9 @@ hc_light_card:
                   return "block";
               }
               return "none";
-            ]]]      
+            ]]]
   state:
     - value: "on"
-      icon: mdi:lightbulb-on
       styles:
         card:
           - background: "[[[ return variables.card_color ]]]"
@@ -46,8 +61,11 @@ hc_light_card:
           - color: white
     - value: "off"
       styles:
+        card:
+          - color: red
+          - background: "[[[ return variables.card_color ]]]"
         icon:
-          - color: var(--icon-color)
+          - color: red
         img_cell:
           - background: var(--background-icon-color-default)
     - value: "unavailable"
@@ -55,14 +73,14 @@ hc_light_card:
         name:
           - text-decoration: line-through
         icon:
-          - color: var(--icon-color)
+          - color: white
         img_cell:
           - background: var(--background-icon-color-default)
         card:
           - opacity: 0.6
           - pointer-events: none
       label: Unknown
-      icon: mdi:lightbulb-question         
+      icon: mdi:lightbulb-question
   custom_fields:
     slider:
       card:
@@ -75,27 +93,27 @@ hc_light_card:
             - box-shadow: none
             - padding: 0
             - touch-action: pan-y
-            - background: |                   
-                  [[[
-                    if (states[entity.entity_id].state === 'off') {
-                      return 'var(--background)';
-                    } else {
-                      return variables.card_color;
-                    }
-                  ]]]
-            - border-radius: 10px
+            - background: |
+                [[[
+                  if (states[entity.entity_id].state === 'off') {
+                    return 'var(--background)';
+                  } else {
+                    return variables.card_color;
+                  }
+                ]]]
+            - border-radius: 12px
           progress:
             - height: 100%
             - touch-action: pan-y
             - background: |
-                  [[[
-                    if (states[entity.entity_id].state === 'off') {
-                      return variables.card_color;
-                    } else {
-                      return 'white';
-                    }
-                  ]]]
-            - border-radius: 10px
+                [[[
+                  if (states[entity.entity_id].state === 'off') {
+                    return variables.card_color;
+                  } else {
+                    return 'white';
+                  }
+                ]]]
+            - border-radius: 12px
           track:
             - touch-action: pan-y
             - background: |
@@ -106,22 +124,23 @@ hc_light_card:
                     return 'var(--slider-color)';
                   }
                 ]]]
-            
-            - border-radius: 10px
+
+            - border-radius: 12px
           thumb:
             - touch-action: pan-y
             - height: 30%
             - background: |
-                    [[[
-                      if (states[entity.entity_id].state === 'off') {
-                        return 'white';
-                      } else {
-                        return variables.card_color;
-                      }
-                    ]]]
+                [[[
+                  if (states[entity.entity_id].state === 'off') {
+                    return 'white';
+                  } else {
+                    return variables.card_color;
+                  }
+                ]]]
             - position: absolute
             - right: 7px
             - top: 11px
             - width: 3px
   hold_action:
     action: more-info
+    haptic: heavy

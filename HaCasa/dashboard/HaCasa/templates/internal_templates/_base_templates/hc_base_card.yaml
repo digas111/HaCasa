@@ -2,7 +2,7 @@ hc_base_card:
   variables:
     enable_slider: false
     card_color: var(--primary-color)
-    custom_label: ''
+    custom_label: ""
   show_name: true
   show_icon: true
   show_label: true
@@ -10,7 +10,7 @@ hc_base_card:
   styles:
     grid:
       - grid-template-areas: |
-            ". i" "n n" "l l"
+          ". i" "n n" "l l"
       - grid-template-rows: min-content min-content 1fr
     card:
       - padding: 12px
@@ -36,13 +36,13 @@ hc_base_card:
               return '0';
           ]]]
     icon:
-      - width: 50%
+      - width: 62%
       - color: var(--icon-color)
     img_cell:
       - background: var(--opacity-contrast-100)
       - border-radius: 50%
-      - width: 35px
-      - height: 35px
+      - width: 42px
+      - height: 42px
       - align-self: start
       - margin-bottom: 10px
       - justify-self: end
@@ -62,9 +62,12 @@ hc_base_card:
     - value: "off"
       styles:
         icon:
-          - color: var(--icon-color)
+          - color: white
         img_cell:
-          - background: var(--background-icon-color-default)
+          - background: rgb(222,192,155)
+        card:
+          - border-width: 1px
+          - border-color: "[[[ return variables.card_color ]]]"
     - value: "unavailable"
       styles:
         name:

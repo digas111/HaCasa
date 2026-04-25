@@ -2,6 +2,7 @@ hc_switch_card:
   variables:
     power_entity:
     power_unit: w
+    active_color: var(--color-green)
     graph_color: white
     show_graph: false
     show_graph_line: true
@@ -32,13 +33,13 @@ hc_switch_card:
       - align-self: center
       - color: var(--subtext-color)
     icon:
-      - width: 50%
+      - width: 62%
       - color: white
     img_cell:
       - background: var(--opacity-contrast-100)
       - border-radius: 50%
-      - width: 35px
-      - height: 35px
+      - width: 42px
+      - height: 42px
       - align-self: start
       - margin-bottom: 10px
     custom_fields:
@@ -50,7 +51,7 @@ hc_switch_card:
               }
               else {
                 return 'none';
-              }            
+              }
             ]]]
         - position: absolute
         - left: 0
@@ -62,7 +63,7 @@ hc_switch_card:
     - value: "on"
       styles:
         card:
-          - background: var(--primary-color)
+          - background: "[[[ return variables.active_color ]]]"
         name:
           - color: white
         label:
@@ -102,20 +103,20 @@ hc_switch_card:
           - entity: "[[[ return variables.power_entity ]]]"
             show_fill: "[[[ return variables.show_graph_fill ]]]"
             show_line: "[[[ return variables.show_graph_line ]]]"
-        animate: true 
+        animate: true
         show:
           name: false
           icon: false
           state: false
         line_width: 1
         line_color: |
-            [[[
-              if (entity.state === "on" && variables.power_entity !== null) {
-                return variables.graph_color;
-              } else {
-                return 'var(--primary-color)';
-              }
-            ]]]   
+          [[[
+            if (entity.state === "on" && variables.power_entity !== null) {
+              return variables.graph_color;
+            } else {
+              return 'var(--primary-color)';
+            }
+          ]]]
         hours_to_show: 24
         card_mod:
           style: |
@@ -124,4 +125,4 @@ hc_switch_card:
               box-shadow: none;
               --ha-card-border-width: 0;
               z-index: 1
-            }                    
+            }

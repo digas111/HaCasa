@@ -39,7 +39,7 @@ Install the following integrations through HACS or manual (see their documentati
 
 ## Download and place files
 
-1. Go to [latest release](https://github.com/damianeickhoff/HaCasa/releases).
+1. Go to [latest release](https://github.com/digas111/HaCasa/releases).
 2. Download the latest `HaCasa.zip` file.
 3. Unpack the ZIP file.
 4. Copy the contents (file **and** folders) to the root of your Home Assistant configuration directory (where `configuration.yaml` is located).
@@ -79,4 +79,4 @@ configuration.yaml
 
 ## Proceed to Configuration
 
-Once the files are in place, proceed to the [configuration guide](https://damianeickhoff.github.io/HaCasa/docs/installation/configuration.html) to set up your dashboard.
+Once the files are in place, proceed to the [configuration guide]({{ '/docs/installation/configuration.html' | relative_url }}) to set up your dashboard.

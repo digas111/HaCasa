@@ -7,13 +7,13 @@ hc_scene_card:
     scene_1:
     name_1:
     icon_2:
-    scene_2: 
+    scene_2:
     name_2:
     icon_3:
-    scene_3: 
+    scene_3:
     name_3:
     icon_4:
-    scene_4: 
+    scene_4:
     name_4:
     icon_5:
     scene_5:
@@ -66,13 +66,14 @@ hc_scene_card:
             - font-size: 14px
         tap_action:
           action: call-service
+          haptic: heavy
           service: input_select.select_option
           target:
             entity_id:
               - input_select.scene_selector
           data:
             option: "[[[ return variables.name_1 ]]]"
-            
+
     item2:
       card:
         type: custom:button-card
@@ -107,17 +108,18 @@ hc_scene_card:
             - font-size: 14px
         tap_action:
           action: call-service
+          haptic: heavy
           service: input_select.select_option
           target:
             entity_id:
               - input_select.scene_selector
           data:
-            option: "[[[ return variables.name_2 ]]]"       
+            option: "[[[ return variables.name_2 ]]]"
     item3:
       card:
         type: custom:button-card
         icon: "[[[ return variables.icon_3 ]]]"
-        name: "[[[ return variables.name_3 ]]]"  
+        name: "[[[ return variables.name_3 ]]]"
         styles:
           grid:
             - grid-template-areas: |
@@ -144,15 +146,16 @@ hc_scene_card:
           name:
             - color: "[[[ if (states[entity.entity_id].state == variables.name_3) {return 'var(--primary-color)'} else {return 'var(--icon-color)'} ]]]"
             - font-weight: "[[[ if (states[entity.entity_id].state == variables.name_3) {return '700'} else {return '500'} ]]]"
-            - font-size: 14px      
+            - font-size: 14px
         tap_action:
           action: call-service
+          haptic: heavy
           service: input_select.select_option
           target:
             entity_id:
               - input_select.scene_selector
           data:
-            option: "[[[ return variables.name_3 ]]]"          
+            option: "[[[ return variables.name_3 ]]]"
     item4:
       card:
         type: custom:button-card
@@ -187,12 +190,13 @@ hc_scene_card:
             - font-size: 14px
         tap_action:
           action: call-service
+          haptic: heavy
           service: input_select.select_option
           target:
             entity_id:
               - input_select.scene_selector
           data:
-            option: "[[[ return variables.name_4 ]]]"      
+            option: "[[[ return variables.name_4 ]]]"
     item5:
       card:
         type: custom:button-card
@@ -227,9 +231,10 @@ hc_scene_card:
             - font-size: 14px
         tap_action:
           action: call-service
+          haptic: heavy
           service: input_select.select_option
           target:
             entity_id:
               - input_select.scene_selector
           data:
-            option: "[[[ return variables.name_5 ]]]"                                            
+            option: "[[[ return variables.name_5 ]]]"

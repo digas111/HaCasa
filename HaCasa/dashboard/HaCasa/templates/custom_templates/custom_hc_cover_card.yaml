@@ -1,18 +1,17 @@
-hc_fan_card:
-  icon: fapro:fan-fill
+custom_hc_cover_card:
+  icon: mdi:window-shutter
   variables:
-    enable_slider: false
-    card_color: var(--primary-color)
-    custom_label: ""
+    card_color: var(--color-blue)
   label: |
     [[[
-      if (states[entity.entity_id].attributes.percentage && states[entity.entity_id].state === 'on') {
-        var speed = states[entity.entity_id].attributes.percentage;
-        return variables.custom_label + (speed ? speed + '%': 'Off');
+      var bri = entity.attributes.current_position;
+      if (states[entity.entity_id].state === 'closing') {
+        return 'Closing';
       }
-      else {
-        return variables.custom_label + states[entity.entity_id].state;
+      if (states[entity.entity_id].state === 'opening'){
+        return 'Opening';
       }
+      return ' ' + (bri ? bri + '% Open': 'Closed');
     ]]]
   show_name: true
   show_icon: true
@@ -21,58 +20,43 @@ hc_fan_card:
   styles:
     grid:
       - grid-template-areas: |
-          [[[
-            if (variables.enable_slider && states[entity.entity_id].state === 'on') {
-                return '"n i" "l i" "slider slider"';
-            }
-              return '". i" "n n" "l l"';
-          ]]]
+          [[[ return '"n i" "l i" "slider slider"'; ]]]
       - grid-template-rows: min-content min-content 1fr
     card:
-      - padding: 12px
-      - height: 100px
+      - padding: 10px
     name:
       - text-align: left
-      - font-size: 14px
+      - font-size: 1rem
+      - font-family: Montserrat
       - font-weight: 700
       - justify-self: start
       - align-self: end
     label:
       - text-align: left
-      - color: var(--subtext-color)
+      - font-size: 0.8rem
+      - font-family: Montserrat
       - font-weight: 500
-      - font-size: 12px
       - justify-self: start
       - align-self: center
+      - opacity: 0.7
       - padding-bottom: |
           [[[
-            if (variables.enable_slider && states[entity.entity_id].state === 'on') {
                 return '10px';
-            }
-              return '0';
           ]]]
     icon:
       - width: 62%
       - color: white
     img_cell:
       - background: var(--opacity-contrast-100)
+      - padding: 6px
       - border-radius: 50%
       - width: 42px
       - height: 42px
       - align-self: start
       - margin-bottom: 10px
-    custom_fields:
-      slider:
-        - display: >
-            [[[
-              if (variables.enable_slider && states[entity.entity_id].state === 'on') {
-                  return "block";
-              }
-              return "none";
-            ]]]
   state:
-    - value: "on"
-      icon: fapro:fan-fill
+    - value: "open"
+      icon: mdi:window-shutter-open
       styles:
         card:
           - background: "[[[ return variables.card_color ]]]"
@@ -82,12 +66,32 @@ hc_fan_card:
           - color: white
         state:
           - color: white
-        icon:
-          - animation: spin 3s linear infinite;
-    - value: "off"
+    - value: "opening"
+      icon: mdi:window-shutter-open
+      styles:
+        card:
+          - background: "[[[ return variables.card_color ]]]"
+        name:
+          - color: white
+        label:
+          - color: white
+        state:
+          - color: white
+    - value: "closing"
+      icon: mdi:window-shutter-open
+      styles:
+        card:
+          - background: "[[[ return variables.card_color ]]]"
+        name:
+          - color: white
+        label:
+          - color: white
+        state:
+          - color: white
+    - value: "closed"
       styles:
         icon:
-          - color: var(--icon-color)
+          - color: var(--icon-color-default)
         img_cell:
           - background: var(--background-icon-color-default)
     - value: "unavailable"
@@ -95,49 +99,37 @@ hc_fan_card:
         name:
           - text-decoration: line-through
         icon:
-          - color: var(--icon-color)
+          - color: var(--icon-color-default)
         img_cell:
           - background: var(--background-icon-color-default)
         card:
           - opacity: 0.6
           - pointer-events: none
       label: Unknown
-      icon: fapro:fan
-  extra_styles: |
-    @keyframes spin {
-      from {
-          transform:rotate(0deg);
-      }
-      to {
-          transform:rotate(360deg);
-      }
-    }
+      icon: mdi:help
   custom_fields:
     slider:
       card:
         type: custom:my-slider-v2
         entity: "[[[ return entity.entity_id ]]]"
+        mode: position
+        vertical: false
+        flipped: false
+        sliderMin: 4
+        disableScroll: false
         styles:
           card:
             - height: 30px
             - box-shadow: none
             - padding: 0
             - touch-action: pan-y
-            - background: |
-                [[[
-                  if (states[entity.entity_id].state === 'off') {
-                    return 'var(--background)';
-                  } else {
-                    return variables.card_color;
-                  }
-                ]]]
-            - border-radius: 10px
+            - background: "[[[ return variables.card_color ]]]"
           progress:
             - height: 100%
             - touch-action: pan-y
             - background: |
                 [[[
-                  if (states[entity.entity_id].state === 'off') {
+                  if (states[entity.entity_id].state === 'closed') {
                     return variables.card_color;
                   } else {
                     return 'white';
@@ -148,7 +140,7 @@ hc_fan_card:
             - touch-action: pan-y
             - background: |
                 [[[
-                  if (states[entity.entity_id].state === 'on') {
+                  if (states[entity.entity_id].state === 'open' || states[entity.entity_id].state === 'opening' || states[entity.entity_id].state === 'closing') {
                     return 'var(--opacity-contrast-100)';
                   } else {
                     return 'var(--slider-color)';
@@ -161,7 +153,7 @@ hc_fan_card:
             - height: 30%
             - background: |
                 [[[
-                  if (states[entity.entity_id].state === 'off') {
+                  if (states[entity.entity_id].state === 'closed') {
                     return 'white';
                   } else {
                     return variables.card_color;
@@ -171,6 +163,13 @@ hc_fan_card:
             - right: 7px
             - top: 11px
             - width: 3px
+  tap_action:
+    action: call-service
+    haptic: heavy
+    service: cover.toggle
+    data:
+      entity_id: |
+        [[[ return entity.entity_id; ]]]
   hold_action:
     action: more-info
     haptic: heavy

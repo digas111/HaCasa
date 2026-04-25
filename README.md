@@ -9,7 +9,7 @@
 The sole purpose of HaCasa is to provide a modern, minimalistic dashboard for Home Assistant. It is designed to be easy to use and customize, while still providing a professional look and feel. The SOAP (significant other acceptance parameters) is a key aspect of the design, ensuring that the interface is not only functional and understandable but also visually appealing to everyone in your household.
 
 ## Documentation
-All the documentation about downloading, installing and configuring can be found on our official [documentation page](https://damianeickhoff.github.io/HaCasa/).
+All the documentation about downloading, installing and configuring can be found on our [documentation page](https://digas111.github.io/HaCasa/).
 
 ## Credits
 - Designed by [Damian Eickhoff](https://github.com/damianeickhoff)

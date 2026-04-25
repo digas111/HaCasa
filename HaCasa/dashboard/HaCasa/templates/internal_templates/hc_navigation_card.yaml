@@ -12,7 +12,7 @@ hc_navigation_card:
   styles:
     grid:
       - grid-template-areas: |
-          "n n" 
+          "n n"
           "l l"
       - grid-template-rows: 1fr 1fr
     card:
@@ -28,7 +28,7 @@ hc_navigation_card:
       - justify-self: start
       - align-self: end
       - font-size: 12px
-      - font-weight: 600 
+      - font-weight: 600
       - color: var(--subtext-color)
     img_cell:
       - position: absolute
@@ -69,12 +69,14 @@ hc_navigation_card_security:
       label: Armed Away
       icon: fapro:shield-keyhole
       styles:
+        card:
+          - background: var(--color-green)
         name:
           - color: white
         label:
           - color: white
         icon:
-          - color: white          
+          - color: white
     - value: disarmed
       label: Disarmed
       icon: fapro:shield
@@ -94,10 +96,124 @@ hc_navigation_card_security:
           - color: white
         label:
           - color: white
-          
+
   extra_styles: |
     @keyframes flash {
       0% {opacity: 100%;}
       50% {opacity: 0%;}
       100% {opacity: 100%;}
     }
+
+hc_room_card:
+  template: hc_navigation_card
+  variables:
+    lights_target_entity: |
+      [[[
+        return entity.entity_id;
+      ]]]
+  label: |
+    [[[
+      const ids = states[entity.entity_id]?.attributes?.entity_id || [];
+      const onCount = ids.filter((id) => states[id] && states[id].state === 'on').length;
+      if (onCount === 0) {
+        return '';
+      }
+      return onCount === 1 ? '1 light on' : `${onCount} lights on`;
+    ]]]
+  state:
+    - value: "on"
+      styles:
+        card:
+          - background: var(--color-orange)
+        name:
+          - color: white
+        label:
+          - color: white
+        icon:
+          - color: white
+    - value: "off"
+      styles:
+        icon:
+          - color: var(--color-orange)
+  styles:
+    grid:
+      - grid-template-areas: |
+          "n n"
+          "l l"
+      - grid-template-rows: min-content 18px
+      - align-content: start
+      - row-gap: 0
+    card:
+      - min-height: 128px
+      - padding: 0 12px 12px 12px
+      - position: relative
+    img_cell:
+      - top: 30%
+      - left: 30%
+    icon:
+      - width: 12em
+      - opacity: 78%
+    name:
+      - align-self: start
+      - margin-top: -30px
+      - line-height: 1
+    label:
+      - align-self: start
+      - margin-top: -15px
+      - min-height: 18px
+      - line-height: 18px
+      - padding-bottom: 54px
+    custom_fields:
+      lights_button:
+        - position: absolute
+        - left: 12px
+        - bottom: 12px
+        - margin: 0
+        - z-index: 2
+  custom_fields:
+    lights_button:
+      card:
+        type: custom:button-card
+        entity: "[[[ return variables.lights_target_entity ]]]"
+        show_name: false
+        show_state: false
+        show_icon: true
+        icon: |
+          [[[
+            return states[variables.lights_target_entity]?.state === 'on'
+              ? 'mdi:lightbulb-group'
+              : 'mdi:lightbulb-group-off-outline';
+          ]]]
+        tap_action:
+          action: call-service
+          haptic: heavy
+          service: light.turn_off
+          data:
+            entity_id: "[[[ return variables.lights_target_entity ]]]"
+        styles:
+          card:
+            - width: 42px
+            - height: 42px
+            - padding: 0
+            - border-radius: 999px
+            - box-shadow: none
+            - background: |
+                [[[
+                  return states[variables.lights_target_entity]?.state === 'on'
+                    ? 'rgba(255, 255, 255, 0.24)'
+                    : 'var(--ha-card-background)';
+                ]]]
+            - border: |
+                [[[
+                  return states[variables.lights_target_entity]?.state === 'on'
+                    ? 'none'
+                    : '1px solid var(--divider-color)';
+                ]]]
+          icon:
+            - width: 56%
+            - color: |
+                [[[
+                  return states[variables.lights_target_entity]?.state === 'on'
+                    ? 'white'
+                    : 'var(--color-orange)';
+                ]]]

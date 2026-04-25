@@ -16,11 +16,10 @@ hc_title_card:
       - justify-self: start
       - align-self: start
       - font-weight: 800
-      - 
       - font-size: 25px
     label:
       - justify-self: start
-      - 
+      -
       - color: var(--subtext-color)
       - font-size: 14px
       - font-weight: 500
@@ -28,13 +27,13 @@ hc_title_card:
       - background: none
       - animation: slide-in 1s ease-out, opacity 1s ease-in
       - box-shadow: none
-      - "--mdc-ripple-color": transparent 
+      - "--mdc-ripple-color": transparent
   custom_fields:
     btn1:
       card:
         type: custom:button-card
-        entity: '[[[ return variables.entity1 ]]]'
-        name: '[[[ return variables.entity1_name ]]]'
+        entity: "[[[ return variables.entity1 ]]]"
+        name: "[[[ return variables.entity1_name ]]]"
         show_icon: false
         styles: &card_styles
           grid:
@@ -46,12 +45,12 @@ hc_title_card:
             - border-radius: 0
             - box-shadow: none
           name:
-            - 
+            -
             - font-weight: 600
             - font-size: 12px
             - opacity: 0.6
         state:
-          - value: 'on'
+          - value: "on"
             styles: &state_style
               card:
                 - background: var(--primary-color)
@@ -61,22 +60,22 @@ hc_title_card:
     btn2:
       card:
         type: custom:button-card
-        entity: '[[[ return variables.entity2 ]]]'
-        name: '[[[ return variables.entity2_name ]]]'
+        entity: "[[[ return variables.entity2 ]]]"
+        name: "[[[ return variables.entity2_name ]]]"
         show_icon: false
         styles: *card_styles
         state:
-          - value: 'on'
+          - value: "on"
             styles: *state_style
     btn3:
       card:
         type: custom:button-card
-        entity: '[[[ return variables.entity3 ]]]'
-        name: '[[[ return variables.entity3_name ]]]'
+        entity: "[[[ return variables.entity3 ]]]"
+        name: "[[[ return variables.entity3_name ]]]"
         show_icon: false
         styles: *card_styles
         state:
-          - value: 'on'
+          - value: "on"
             styles: *state_style
   extra_styles: |
     @keyframes slide-in {
@@ -90,6 +89,8 @@ hc_title_card:
 
 hc_title_card_backbtn:
   icon: mdi:chevron-left
+  variables:
+    navigation_path: ""
   styles:
     card:
       - background: none
@@ -105,7 +106,7 @@ hc_title_card_backbtn:
       - width: 40px
       - height: 40px
       - background: var(--ha-card-background)
-      - border-radius: 50% 
+      - border-radius: 50%
       - box-shadow: var(--ha-card-box-shadow)
       - overflow: visible
       - pointer-events: auto
@@ -115,9 +116,12 @@ hc_title_card_backbtn:
     name:
       - justify-self: center
       - font-weight: 700
-      - 
       - font-size: 20px
-      - margin-left: -2.350px
+      - margin-left: -40px
+  # tap_action:
+  #   action: navigate
+  #   navigation_path: /home
   tap_action:
     action: navigate
-    navigation_path: /home      
+    haptic: heavy
+    navigation_path: "[[[ return variables.navigation_path ]]]"

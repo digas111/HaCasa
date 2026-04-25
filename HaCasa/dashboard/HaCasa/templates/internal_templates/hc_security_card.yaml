@@ -6,7 +6,7 @@ hc_security_card:
   show_label: true
   variables:
     hc_icon_color: var(--primary-color)
-    hc_security_code: 
+    hc_security_code:
   styles:
     grid:
       - grid-template-areas: |
@@ -20,7 +20,7 @@ hc_security_card:
     label:
       - justify-self: start
       - align-self: start
-      - 
+      -
       - font-size: 12px
       - font-weight: 500
       - color: var(--subtext-color)
@@ -37,7 +37,7 @@ hc_security_card:
       - justify-self: start
       - font-size: 20px
       - font-weight: 600
-      - 
+      -
   state:
     - value: disarmed
       name: Disarmed
@@ -67,7 +67,7 @@ hc_security_card:
           - color: white
         label:
           - color: white
-          
+
   extra_styles: |
     @keyframes flash {
       0% {opacity: 100%;}
@@ -94,7 +94,7 @@ hc_security_card:
               entity: "[[[ return entity.entity_id ]]]"
               show_name: false
               show_state: false
-              icon: mdi:shield-home
+              icon: mdi:shield-moon
               styles:
                 icon:
                   - width: 25px
@@ -114,11 +114,12 @@ hc_security_card:
                       - color: '#fff'
               tap_action:
                 action: call-service
-                service: alarm_control_panel.alarm_arm_home
+                haptic: heavy
+                service: alarm_control_panel.alarm_arm_night
                 target:
                   entity_id: "[[[ return entity.entity_id ]]]"
-                data:
-                  code: "[[[ return variables.hc_security_code ]]]"
+                # data:
+                #   code: "[[[ return variables.hc_security_code ]]]"
           item2:
             card:
               type: custom:button-card
@@ -160,11 +161,12 @@ hc_security_card:
                 }
               tap_action:
                 action: call-service
+                haptic: heavy
                 service: alarm_control_panel.alarm_arm_away
                 target:
                   entity_id: "[[[ return entity.entity_id ]]]"
-                data:
-                  code: "[[[ return variables.hc_security_code ]]]"
+                # data:
+                #   code: "[[[ return variables.hc_security_code ]]]"
           item3:
             card:
               type: custom:button-card
@@ -188,14 +190,15 @@ hc_security_card:
                     card:
                       - background: "[[[ return variables.hc_icon_color ]]]"
                     icon:
-                      - color: '#fff'               
+                      - color: '#fff'
               tap_action:
                 action: call-service
+                haptic: heavy
                 service: alarm_control_panel.alarm_disarm
                 target:
                   entity_id: "[[[ return entity.entity_id ]]]"
-                data:
-                  code: "[[[ return variables.hc_security_code ]]]"
+                # data:
+                #   code: "[[[ return variables.hc_security_code ]]]"
 
 hc_security_card_small:
   show_icon: true
@@ -209,16 +212,17 @@ hc_security_card_small:
       - padding: 15px
       - margin: 0
     icon:
-      - width: 50%
+      - width: 62%
       - padding: 0
       - margin: 0
       - color: var(--subtext-color)
     img_cell:
-      - width: 35px
+      - width: 42px
+      - height: 42px
       - padding: 0
       - margin: 0
     name:
-      - 
+      -
       - font-weight: 600
       - color: var(--subtext-color)
   state:
@@ -255,7 +259,7 @@ hc_security_card_small:
         name:
           - color: '#fff'
         icon:
-          - color: '#fff'              
+          - color: '#fff'
   extra_styles: |
     @keyframes flash {
       0% {opacity: 100%;}

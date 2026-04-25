@@ -24,6 +24,54 @@ hc_sensor_card:
           - color: white
     - value: "off"
       icon: "[[[ return variables.off_icon ]]]"
+    - value: "closed"
+      styles:
+        card:
+          - background: var(--color-green)
+        name:
+          - color: var(--primary-text-color)
+        state:
+          - color: var(--primary-text-color)
+        icon:
+          - color: var(--primary-text-color)
+        label:
+          - color: var(--primary-text-color)
+    - value: "open"
+      styles:
+        card:
+          - background: var(--color-red)
+        name:
+          - color: var(--primary-text-color)
+        state:
+          - color: var(--primary-text-color)
+        icon:
+          - color: var(--primary-text-color)
+        label:
+          - color: var(--primary-text-color)
+    - value: "unlocked"
+      styles:
+        card:
+          - background: var(--color-yellow)
+        name:
+          - color: var(--primary-text-color)
+        state:
+          - color: var(--primary-text-color)
+        icon:
+          - color: var(--primary-text-color)
+        label:
+          - color: var(--primary-text-color)
+    - value: "locked"
+      styles:
+        card:
+          - background: var(--color-green)
+        name:
+          - color: var(--primary-text-color)
+        state:
+          - color: var(--primary-text-color)
+        icon:
+          - color: var(--primary-text-color)
+        label:
+          - color: var(--primary-text-color)
   styles:
     grid:
       - grid-template-areas: |
