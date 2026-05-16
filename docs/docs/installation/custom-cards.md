@@ -6,7 +6,7 @@ nav_order: 1.4
 ---
 # Custom Cards
 
-HaCasa includes internal templates and custom templates. Internal templates are the standard cards shipped with the dashboard. Custom templates are optional cards in `dashboard/HaCasa/templates/custom_templates` that you can use, copy, or adapt for more specific devices.
+HaCasa includes internal templates and custom templates. Internal templates are the standard cards shipped with the dashboard. Custom templates are optional cards in `www/community/HaCasa/dashboard/HaCasa/templates/custom_templates` that you can use, copy, or adapt for more specific devices.
 
 ## Included custom templates
 

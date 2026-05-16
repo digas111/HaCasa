@@ -49,7 +49,7 @@ Every card you will see on this documentation page have all the needed and optio
 
 ## Custom templates
 
-HaCasa also ships custom templates for more specific devices and workflows. These live in `dashboard/HaCasa/templates/custom_templates` and are documented in this cards section:
+HaCasa also ships custom templates for more specific devices and workflows. These live in `www/community/HaCasa/dashboard/HaCasa/templates/custom_templates` and are documented in this cards section:
 
 - `custom_hc_cover_card`
 - `hc_battery_card`

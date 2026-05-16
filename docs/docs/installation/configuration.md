@@ -7,26 +7,28 @@ nav_order: 1.2
 
 # Configuration
 
-Now that we have downloaded and placed the files, its time to do some configuration.
+Now that HACS has installed the files, its time to do some configuration.
 
-## Load the Theme
+## Load the Theme and Icons
 
 1. Open your `configuration.yaml` file. This file is located in the root of your Home Assistant instance.
-2. Add the following code to the top of your file to load frontend themes. This is a part of Home Assistant itself and not HaCasa's. Place it underneath `default_config:` if you have that.
-
+2. Add the following code to load the HaCasa themes and icon module. Place it underneath `default_config:` if you have that.
 
    ```yaml
-   # Load frontend themes from the themes folder
    frontend:
-     themes: !include_dir_merge_named themes
+     themes: !include_dir_merge_named www/community/HaCasa/themes
+     extra_module_url:
+       - /hacsfiles/HaCasa/HaCasa.js
    ```
 
-4. Add the next part of code also to the `configration.yaml` to enable YAML mode for the new dashboard:
+3. Add the next part of code to `configuration.yaml` to enable YAML mode for the new dashboard:
 
    ```yaml
    lovelace:
      mode: "storage"
      resources:
+      - url: "/hacsfiles/HaCasa/HaCasa.js"
+        type: "module"
       - url: "/hacsfiles/button-card/button-card.js"
         type: "module"
       - url: "/hacsfiles/my-cards/my-cards.js"
@@ -34,24 +36,25 @@ Now that we have downloaded and placed the files, its time to do some configurat
       - url: "/hacsfiles/kiosk-mode/kiosk-mode.js"
         type: module
       - url: "/hacsfiles/lovelace-card-mod/card-mod.js"
-        type: module   
+        type: module
       - url: "/hacsfiles/mini-graph-card/mini-graph-card-bundle.js"
-        type: module 
+        type: module
       - url: "/hacsfiles/lovelace-layout-card/layout-card.js"
-        type: module        
+        type: module
       - url: "https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900"
         type: css
      dashboards:
        hacasa-dashboard:
          mode: "yaml"
          title: HaCasa
-         icon: fapro:house-fill
+         icon: mdi:home
          show_in_sidebar: true
-         filename: "dashboard/HaCasa/main.yaml"
+         filename: "www/community/HaCasa/dashboard/HaCasa/main.yaml"
    ```
-As you can see, we load the needed intergrations and add a new dashboard called HaCasa and because we set the `mode` to `storage` (underneath `lovelace`), we don't remove any other dashboards you created with UI.
 
-3. Save the file and **Restart** Home Assistant.
+As you can see, we load the needed integrations and add a new dashboard called HaCasa. Because we set the `mode` to `storage` underneath `lovelace`, we don't remove any other dashboards you created with UI.
+
+4. Save the file and **Restart** Home Assistant.
 
 ## Change the Theme
 
@@ -62,14 +65,14 @@ We have two themes available by default. The gold (and original) one and the new
 
 ## Create a Default View
 
-1. Navigate to the `dashboard/HaCasa/views` folder.
+1. Navigate to the `www/community/HaCasa/dashboard/HaCasa/views` folder.
 2. Create a new file named `00-default_view.yaml`. This file will also be used in the examples from the [Usage](../usage) section.
 3. Add the following content to the file and change the values to your entities:
 
    ```yaml
    title: Home
    path: "home"
-   icon: fapro:house-fill
+   icon: hacasa:house-fill
    cards:
      - type: vertical-stack
        cards:
@@ -91,4 +94,4 @@ We have two themes available by default. The gold (and original) one and the new
 3. Verify that the header card, alarm card and scene card are displayed correctly like the image below (based on peachy theme):
 ![Example view Light](/img/other/example_view_light.jpeg#light-mode-only)![Example view Dark](/img/other/example_view_light.jpeg#dark-mode-only)
 
-If everything works as expected, you are ready to start customizing your dashboard 🎉! Explore the cards section in the menu for more options.
+If everything works as expected, you are ready to start customizing your dashboard. Explore the cards section in the menu for more options.

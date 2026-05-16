@@ -11,6 +11,15 @@ The sole purpose of HaCasa is to provide a modern, minimalistic dashboard for Ho
 ## Documentation
 All the documentation about downloading, installing and configuring can be found on our [documentation page](https://digas111.github.io/HaCasa/).
 
+## HACS
+HaCasa can be installed with HACS as a custom Dashboard repository:
+
+```text
+https://github.com/digas111/HaCasa
+```
+
+The HACS package is generated in `dist/`. Run `node scripts/build-hacs-dist.js` before publishing a release so the release tag contains the installable dashboard bundle.
+
 ## Credits
 - Designed by [Damian Eickhoff](https://github.com/damianeickhoff)
 - Logo design by [Fredrik Persson](https://github.com/fredrikpersson92)

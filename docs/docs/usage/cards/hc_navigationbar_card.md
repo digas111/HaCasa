@@ -21,14 +21,14 @@ This card is fairly simple. The most important part is that you change the backg
       icon_color_1: white
       background_color_1: var(--primary-color)
       navigation_path_1: home
-      icon_1: fapro:house
+      icon_1: hacasa:house
       navigation_path_2: climate
-      icon_2: fapro:thermometer
+      icon_2: hacasa:thermometer
       navigation_path_3: devices
-      icon_3: fapro:plug
+      icon_3: hacasa:plug
       entity_3: switch.all_switches
       navigation_path_4: media
-      icon_4: fapro:music
+      icon_4: hacasa:music
       entity_4: 'media_player.all_media'
 ```        
 

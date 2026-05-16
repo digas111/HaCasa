@@ -1,0 +1,25 @@
+name: Validate HACS
+
+on:
+  push:
+    paths:
+      - ".github/workflows/hacs.yml"
+      - "hacs.json"
+      - "dist/**"
+  pull_request:
+    paths:
+      - ".github/workflows/hacs.yml"
+      - "hacs.json"
+      - "dist/**"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  validate-hacs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: HACS validation
+        uses: hacs/action@main
+        with:
+          category: plugin

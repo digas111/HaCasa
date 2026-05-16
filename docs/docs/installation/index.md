@@ -6,14 +6,12 @@ nav_order: 1
 
 # Installation
 
-The installation of HaCasa is, for now, only possible via a manual installation. While this may seem a bit daunting at first, rest assured that we have created a detailed guide to help you through the process step by step. 
+HaCasa can be installed with HACS as a custom Dashboard repository. This is the recommended installation method because HACS keeps the dashboard files in one managed folder and can remove those files again when you uninstall it.
 {: .fs-6 .fw-300 }
 
-Our ultimate goal is to make HaCasa more accessible by integrating it into HACS (Home Assistant Community Store) or even providing it as a native integration. This would allow users to install and configure HaCasa directly through the Home Assistant UI, making the process much simpler and more user-friendly.
+HaCasa still relies on YAML configuration. Home Assistant's UI editor does not yet support the include directives used by HaCasa and many other advanced dashboards, so you still need to edit `configuration.yaml`.
 
-Unfortunately, due to current limitations, HaCasa relies on YAML configuration, which requires manual editing of your Home Assistant files. This is because Home Assistant's UI editor does not yet support the use of include directives, which are essential for HaCasa and many other advanced dashboards. However, we are optimistic about the future. There is an active feature request in the Home Assistant community to enable this functionality in the UI editor. If you'd like to support this effort, consider voting for [this thread](https://community.home-assistant.io/t/ability-to-use-include-directives-in-ui-editor/336167?u=paddy0174).
-
-In the meantime, we encourage you to follow our guide carefully. With a little patience and attention to detail, you'll have HaCasa up and running in no time, unlocking a powerful and customizable dashboard experience for your Home Assistant setup.
+HACS installs the files, but you add the Lovelace dashboard entry and theme include yourself.
 
 ## But can I add it to the raw config?
 Yes but please... **don't**. Home Assistant only allows you to include files in yaml-mode and because HaCasa (and many other dashboards) make use of this function we can only support the yaml mode.

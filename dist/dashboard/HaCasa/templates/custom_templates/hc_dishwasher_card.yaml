@@ -1,0 +1,252 @@
+hc_dishwasher_card:
+  name: Máquina Loiça
+  show_icon: true
+  show_label: true
+  icon: mdi:dishwasher
+  entity: sensor.bd_loica_operation_state
+  variables:
+    progress_entity: sensor.bd_loica_program_progress
+    salt_entity: sensor.bd_loica_quase_sem_sal
+    rinse_aid_entity: sensor.bd_loica_rinse_aid_nearly_empty
+    remaining_time_entity: sensor.bd_loica_remaining_program_time
+    active_program_entity: select.bd_loica_active_program
+  tap_action:
+    action: none
+    haptic: heavy
+  hold_action:
+    action: none
+    haptic: heavy
+  double_tap_action:
+    action: none
+    haptic: heavy
+  styles:
+    card:
+      - padding: 20px
+      - font-family: montserrat
+    grid:
+      - grid-template-areas: |
+          'i stat1 button'
+          'n stat2 button'
+          'bar bar bar'
+          'stat3 stat3 stat3'
+      - grid-template-columns: min-content 1fr min-content
+      - grid-template-rows: 70px min-content 40px min-content
+    name:
+      - justify-self: start
+      - font-size: 16px
+      - font-weight: 500
+    label:
+      - justify-self: start
+      - font-size: 16px
+      - font-weight: 500
+    icon:
+      - width: 42px
+      - color: var(--primary-text-color)
+    img_cell:
+      - justify-self: start
+      - align-self: start
+      - width: 42px
+      - height: 42px
+      - background: var(--button-card-background)
+      - border-radius: 50%
+    custom_fields:
+      button:
+        - justify-self: end
+        - align-self: start
+      stat1:
+        - justify-self: center
+        - align-self: start
+        - padding-top: 8px
+        - font-size: 12px
+        - opacity: 1
+        - visibility: visible
+      stat2:
+        - justify-self: end
+        - font-size: 16px
+        - font-weight: 500
+      stat3:
+        - justify-self: end
+        - font-size: 12px
+        - opacity: 0.7
+        - visibility: visible
+      bar:
+        - justify-self: start
+        - width: 100%
+        - border-radius: 6px
+        - background: var(--slider-color)
+        - height: 16px
+  custom_fields:
+    bar: >
+      [[[
+        var percent = parseFloat(states[variables.progress_entity]?.state);
+        if (isNaN(percent) || percent < 0 || percent > 100) return '';
+
+        return `<div style="background: var(--slider-color); border-radius: 6px; width: 100%; height: 16px;">
+                  <div style="background: var(--color-blue); border-radius: 6px; height: 16px; width: ${percent}%;"></div>
+                </div>`;
+      ]]]
+    stat1: |
+      [[[
+        const needsAttention = (id) => {
+          const state = String(states[id]?.state ?? '').toLowerCase();
+          if (!state) return false;
+          const options = (states[id]?.attributes?.options ?? []).map((value) => String(value).toLowerCase());
+          if (options.includes('off')) {
+            return state !== 'off';
+          }
+          return ['on', 'true', '1', '2', 'present', 'confirmed'].includes(state);
+        };
+
+        const on = 'var(--color-red)';
+        const off = 'var(--color-green)';
+
+        // Sal
+        const salColor = needsAttention(variables.salt_entity) ? on : off;
+        const sal = `
+          <span
+            style="
+              color:var(--text-color);
+              font-weight:600;
+              border: 1px solid ${salColor};
+              background-color: ${salColor};
+              border-radius: 999px;
+              padding: 2px 8px;
+              line-height: 1.2;
+              display: inline-block;
+              white-space: nowrap;
+            ">
+            Sal
+          </span>`;
+
+        // Abrilhantador
+        const abrColor = needsAttention(variables.rinse_aid_entity) ? on : off;
+        const abrilhantador = `
+          <span
+            style="
+              color:var(--text-color);
+              font-weight:600;
+              border: 1px solid ${abrColor};
+              background-color: ${abrColor};
+              border-radius: 999px;
+              padding: 2px 8px;
+              line-height: 1.2;
+              display: inline-block;
+              white-space: nowrap;
+            ">
+            Abrilhantador
+          </span>`;
+
+        return `
+          <div style="display: flex; gap: 8px; align-items: center;">
+            ${sal}
+            ${abrilhantador}
+          </div>`;
+      ]]]
+    stat2: |
+      [[[
+        const raw = states[variables.remaining_time_entity]?.state;
+        if (!raw || raw === 'unknown' || raw === 'unavailable') return '';
+
+        const ts = Date.parse(raw);
+        if (Number.isFinite(ts)) {
+          const end = new Date(ts);
+          const hh = end.getHours().toString().padStart(2, '0');
+          const mm = end.getMinutes().toString().padStart(2, '0');
+          return `Finishing at ${hh}:${mm}`;
+        }
+
+        let minutes = NaN;
+        if (/^\d+:\d+(:\d+)?$/.test(raw)) {
+          const parts = raw.split(':').map(Number);
+          const h = parts[0], m = parts[1], s = parts[2] || 0;
+          minutes = Math.round(h * 60 + m + s / 60);
+        } else {
+          minutes = parseInt(raw, 10);
+        }
+
+        if (!Number.isFinite(minutes) || minutes <= 0) return '';
+
+        const end = new Date();
+        end.setMinutes(end.getMinutes() + minutes);
+        const hh = end.getHours().toString().padStart(2, '0');
+        const mm = end.getMinutes().toString().padStart(2, '0');
+        return `Finishing at ${hh}:${mm}`;
+      ]]]
+    stat3: |
+      [[[
+        const status = String(states[entity.entity_id]?.state ?? '').toLowerCase();
+        if (!status || status === 'inactive') return 'Off';
+        if (status === 'run') {
+          const pct = parseFloat(states[variables.progress_entity]?.state);
+          if (Number.isFinite(pct) && pct >= 0 && pct <= 100) {
+            return `${Math.round(pct)}%`;
+          }
+          return 'Running';
+        }
+        if (status === 'delayedstart') return 'Delayed start';
+        if (status === 'pause') return 'Paused';
+        if (status === 'actionrequired') return 'Action required';
+        if (status === 'finished') return 'Finished';
+        if (status === 'error') return 'Error';
+        if (status === 'aborting') return 'Aborting';
+        return 'Ready';
+      ]]]
+    button: |
+      [[[
+        const operation = String(states[entity.entity_id]?.state ?? '').toLowerCase();
+        const operationIcons = {
+          inactive: 'mdi:power-off',
+          ready: 'mdi:play-circle-outline',
+          run: 'mdi:play-circle',
+          pause: 'mdi:pause-circle',
+          delayedstart: 'mdi:timer-outline',
+          actionrequired: 'mdi:alert-circle',
+          finished: 'mdi:check-circle',
+          error: 'mdi:alert-circle',
+          aborting: 'mdi:close-circle',
+        };
+
+        const program = String(states[variables.active_program_entity]?.state ?? '').toLowerCase();
+        const programIcons = {
+          dishcare_dishwasher_program_intensiv_70: 'mdi:pot-steam-outline',
+          dishcare_dishwasher_program_auto_2: 'mdi:brightness-auto',
+          dishcare_dishwasher_program_eco_50: 'mdi:leaf',
+          dishcare_dishwasher_program_quick_45: 'mdi:timer-sand',
+          dishcare_dishwasher_program_pre_rinse: 'mdi:water',
+          dishcare_dishwasher_program_quick_65: 'mdi:lightning-bolt',
+          dishcare_dishwasher_program_machine_care: 'mdi:dishwasher-alert',
+        };
+
+        const icon = operationIcons[operation] ?? programIcons[program] ?? 'mdi:dishwasher';
+        const colors = {
+          inactive: 'var(--color-grey)',
+          ready: 'var(--color-blue)',
+          run: 'var(--color-blue)',
+          pause: 'var(--color-orange)',
+          delayedstart: 'var(--color-orange)',
+          actionrequired: 'var(--color-red)',
+          finished: 'var(--color-green)',
+          error: 'var(--color-red)',
+          aborting: 'var(--color-red)',
+        };
+        const background = colors[operation] ?? 'var(--color-blue)';
+
+        return `
+          <div
+            style="
+              width: 45px;
+              height: 45px;
+              border-radius: 999px;
+              background: ${background};
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          >
+            <ha-icon
+              icon="${icon}"
+              style="width: 24px; height: 24px; color: white;"
+            ></ha-icon>
+          </div>
+        `;
+      ]]]

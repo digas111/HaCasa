@@ -27,7 +27,7 @@ Like mentioned in the installation, you need to be able to edit your files. Ther
     ```yaml
     title: Home
     path: "home"
-    icon: fapro:house-fill
+    icon: hacasa:house-fill
     cards:
         - type: vertical-stack
           cards:
