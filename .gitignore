@@ -14,3 +14,6 @@ Desktop.ini
 *.swp
 *.swo
 *~
+
+# Generated documentation
+_site/
