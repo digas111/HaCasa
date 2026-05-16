@@ -1,0 +1,24 @@
+{
+  "name": "hacasa",
+  "version": "0.0.0",
+  "private": true,
+  "description": "HaCasa Home Assistant dashboard test harness",
+  "scripts": {
+    "setup": "node scripts/setup-dev.js",
+    "setup:ha": "npm run setup && npm run test:ha:prepare",
+    "setup:devcontainer": "node scripts/setup-dev.js --with-system-deps && npm run test:ha:prepare",
+    "build:hacs": "node scripts/build-hacs-dist.js",
+    "test:ha:prepare": "npm run build:hacs && node scripts/ha-test/prepare.js",
+    "test:ha:static": "npm run test:ha:prepare && node --check dist/HaCasa.js && node scripts/ha-test/validate-yaml.js",
+    "test:ha:up": "docker compose -f compose.ha-test.yaml up -d",
+    "test:ha:wait": "node scripts/ha-test/wait-for-ha.js",
+    "test:ha:onboard": "node scripts/ha-test/onboard.js",
+    "test:ha:browser": "node scripts/ha-test/browser-smoke.js",
+    "test:ha:down": "docker compose -f compose.ha-test.yaml down -v --remove-orphans",
+    "test:ha": "node scripts/ha-test/run-tests.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "yaml": "2.7.0"
+  }
+}

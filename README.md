@@ -11,6 +11,47 @@ The sole purpose of HaCasa is to provide a modern, minimalistic dashboard for Ho
 ## Documentation
 All the documentation about downloading, installing and configuring can be found on our [documentation page](https://digas111.github.io/HaCasa/).
 
+## Development
+The fastest way to work on HaCasa is with the included devcontainer. Clone the
+repo, open it in VS Code or another Dev Containers-compatible editor, and choose
+`Reopen in Container`. The container installs Node dependencies, Playwright
+Chromium, Docker, and Docker Compose so the Home Assistant smoke harness can run
+without extra local setup. The devcontainer uses Docker-in-Docker, so the local
+Dev Containers runtime must allow privileged containers.
+
+Docker Desktop is the supported local runtime. On macOS, share the parent folder
+that contains this repo in `Docker Desktop > Settings > Resources > File
+Sharing` before starting the devcontainer. The workspace uses the normal Dev
+Containers bind mount, so local uncommitted edits are visible inside the
+devcontainer automatically.
+
+For local development without the devcontainer, install everything needed for
+the Home Assistant smoke harness with one command:
+
+```sh
+npm run setup:ha
+```
+
+Common test commands:
+
+```sh
+npm run test:ha:static
+npm run test:ha:up
+npm run test:ha:wait
+npm run test:ha:browser
+npm run test:ha:down
+```
+
+VS Code tasks are also available:
+
+- `HA: Run Smoke Tests`
+- `HA: Start Dashboard For Visual Check`
+- `HA: Refresh Dashboard For Visual Check`
+- `HA: Stop Home Assistant`
+
+The visual-check tasks create a local Home Assistant test account. Log in with
+`hacasa` / `hacasa`.
+
 ## HACS
 HaCasa can be installed with HACS as a custom Dashboard repository:
 

@@ -1,0 +1,80 @@
+name: Home Assistant dashboard smoke test
+
+on:
+  push:
+    paths:
+      - ".github/workflows/ha-dashboard-test.yml"
+      - ".devcontainer/**"
+      - "compose.ha-test.yaml"
+      - "hacs.json"
+      - "HaCasa/**"
+      - "dist/**"
+      - "scripts/**"
+      - "tests/ha/**"
+      - "package.json"
+      - "package-lock.json"
+  pull_request:
+    paths:
+      - ".github/workflows/ha-dashboard-test.yml"
+      - ".devcontainer/**"
+      - "compose.ha-test.yaml"
+      - "hacs.json"
+      - "HaCasa/**"
+      - "dist/**"
+      - "scripts/**"
+      - "tests/ha/**"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install test dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Prepare Home Assistant test config
+        run: npm run test:ha:static
+
+      - name: Start Home Assistant
+        run: npm run test:ha:up
+
+      - name: Wait for Home Assistant
+        run: npm run test:ha:wait
+
+      - name: Run dashboard browser smoke test
+        run: npm run test:ha:browser
+
+      - name: Collect Home Assistant logs
+        if: always()
+        run: |
+          mkdir -p .ha-test/artifacts
+          docker compose -f compose.ha-test.yaml logs --no-color > .ha-test/artifacts/home-assistant.log || true
+
+      - name: Upload smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ha-dashboard-smoke-artifacts
+          path: .ha-test/artifacts
+          if-no-files-found: ignore
+
+      - name: Stop Home Assistant
+        if: always()
+        run: npm run test:ha:down

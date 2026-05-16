@@ -1,0 +1,248 @@
+homeassistant:
+  name: HaCasa Test
+  latitude: 38.7223
+  longitude: -9.1393
+  elevation: 10
+  unit_system: metric
+  time_zone: Europe/Lisbon
+  country: PT
+
+default_config:
+
+demo:
+
+logger:
+  default: warning
+
+hacsfiles_test:
+
+frontend:
+  themes: !include_dir_merge_named www/community/HaCasa/themes
+  extra_module_url:
+    - /hacsfiles/HaCasa/HaCasa.js
+
+lovelace:
+  mode: storage
+  resources:
+    - url: /hacsfiles/HaCasa/HaCasa.js
+      type: module
+    - url: /hacsfiles/button-card/button-card.js
+      type: module
+    - url: /hacsfiles/my-cards/my-cards.js
+      type: module
+    - url: /hacsfiles/kiosk-mode/kiosk-mode.js
+      type: module
+    - url: /hacsfiles/lovelace-card-mod/card-mod.js
+      type: module
+    - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
+      type: module
+    - url: /hacsfiles/lovelace-layout-card/layout-card.js
+      type: module
+    - url: https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900
+      type: css
+  dashboards:
+    hacasa-dashboard:
+      mode: yaml
+      title: HaCasa
+      icon: mdi:home
+      show_in_sidebar: true
+      filename: www/community/HaCasa/dashboard/HaCasa/main.yaml
+
+input_boolean:
+  hacasa_light:
+    name: Smoke Light
+    icon: mdi:lightbulb
+  hacasa_fan:
+    name: Smoke Fan
+    icon: mdi:fan
+  hacasa_switch:
+    name: Smoke Switch
+    icon: mdi:power-plug
+  hacasa_scene_active:
+    name: Scene Active
+    icon: mdi:home
+  hacasa_toggle:
+    name: Toggle Graph Switch
+    icon: mdi:toggle-switch
+  hacasa_washing_machine:
+    name: Washing Machine
+    icon: mdi:washing-machine
+
+input_number:
+  hacasa_number:
+    name: Smoke Number
+    min: 0
+    max: 100
+    step: 1
+    initial: 42
+    unit_of_measurement: "%"
+  hacasa_cover_position:
+    name: Cover Position
+    min: 0
+    max: 100
+    step: 1
+    initial: 58
+    unit_of_measurement: "%"
+
+input_select:
+  hacasa_security_state:
+    name: Security State
+    options:
+      - disarmed
+      - armed_home
+      - armed_away
+      - triggered
+    initial: disarmed
+  hacasa_scene_selector:
+    name: Scene Selector
+    options:
+      - home
+      - work
+      - away
+      - night
+      - movie
+    initial: home
+  hacasa_dishwasher_program:
+    name: Dishwasher Program
+    options:
+      - dishcare_dishwasher_program_auto_2
+      - dishcare_dishwasher_program_eco_50
+      - dishcare_dishwasher_program_quick_45
+    initial: dishcare_dishwasher_program_auto_2
+  hacasa_climate_mode:
+    name: Climate Mode
+    options:
+      - heat
+      - cool
+      - auto
+      - "off"
+    initial: heat
+
+group:
+  hacasa_room:
+    name: Smoke Room
+    entities:
+      - input_boolean.hacasa_light
+
+climate:
+  - platform: generic_thermostat
+    name: HaCasa Thermostat
+    heater: input_boolean.hacasa_switch
+    target_sensor: sensor.hacasa_temperature
+    min_temp: 16
+    max_temp: 28
+    target_temp: 22
+
+cover:
+  - platform: template
+    covers:
+      hacasa_cover:
+        friendly_name: HaCasa Cover
+        position_template: "{{ states('input_number.hacasa_cover_position') | int(0) }}"
+        value_template: "{{ states('input_number.hacasa_cover_position') | int(0) > 0 }}"
+        open_cover:
+          service: input_number.set_value
+          target:
+            entity_id: input_number.hacasa_cover_position
+          data:
+            value: 100
+        close_cover:
+          service: input_number.set_value
+          target:
+            entity_id: input_number.hacasa_cover_position
+          data:
+            value: 0
+        set_cover_position:
+          service: input_number.set_value
+          target:
+            entity_id: input_number.hacasa_cover_position
+          data:
+            value: "{{ position }}"
+
+template:
+  - sensor:
+      - name: HaCasa Weather Forecast
+        unique_id: hacasa_weather_forecast
+        state: sunny
+        icon: mdi:weather-sunny
+        attributes:
+          temperature: 22
+          humidity: 48
+          forecast: >
+            {{ [
+              {
+                "datetime": "2026-05-16T12:00:00+00:00",
+                "condition": "sunny",
+                "temperature": 22,
+                "templow": 14,
+                "precipitation": 0
+              },
+              {
+                "datetime": "2026-05-17T12:00:00+00:00",
+                "condition": "partlycloudy",
+                "temperature": 20,
+                "templow": 13,
+                "precipitation": 1
+              },
+              {
+                "datetime": "2026-05-18T12:00:00+00:00",
+                "condition": "cloudy",
+                "temperature": 19,
+                "templow": 12,
+                "precipitation": 2
+              },
+              {
+                "datetime": "2026-05-19T12:00:00+00:00",
+                "condition": "rainy",
+                "temperature": 17,
+                "templow": 11,
+                "precipitation": 4
+              }
+            ] }}
+      - name: HaCasa Temperature
+        unique_id: hacasa_temperature
+        state: "22"
+        unit_of_measurement: "°C"
+        device_class: temperature
+      - name: HaCasa Humidity
+        unique_id: hacasa_humidity
+        state: "48"
+        unit_of_measurement: "%"
+        device_class: humidity
+      - name: HaCasa Power
+        unique_id: hacasa_power
+        state: "180"
+        unit_of_measurement: W
+        device_class: power
+      - name: HaCasa Battery
+        unique_id: hacasa_battery
+        state: "87"
+        unit_of_measurement: "%"
+        device_class: battery
+      - name: HaCasa Dishwasher State
+        unique_id: hacasa_dishwasher_state
+        state: run
+      - name: HaCasa Dishwasher Progress
+        unique_id: hacasa_dishwasher_progress
+        state: "64"
+        unit_of_measurement: "%"
+      - name: HaCasa Dishwasher Salt
+        unique_id: hacasa_dishwasher_salt
+        state: "off"
+      - name: HaCasa Dishwasher Rinse Aid
+        unique_id: hacasa_dishwasher_rinse_aid
+        state: "off"
+      - name: HaCasa Dishwasher Remaining
+        unique_id: hacasa_dishwasher_remaining
+        state: "00:42:00"
+      - name: HaCasa Vacuum
+        unique_id: hacasa_vacuum
+        state: docked
+        icon: mdi:robot-vacuum
+        attributes:
+          battery_level: 91
+  - binary_sensor:
+      - name: HaCasa Door
+        unique_id: hacasa_door
+        state: "off"
+        device_class: door

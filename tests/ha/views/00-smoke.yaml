@@ -1,0 +1,191 @@
+title: Home
+path: home
+icon: hacasa:house-fill
+type: custom:masonry-layout
+cards:
+  - type: custom:button-card
+    template: hc_header_card
+    entity: sensor.hacasa_weather_forecast
+    variables:
+      air_quality_sensor: sensor.hacasa_humidity
+
+  - type: custom:button-card
+    template: hc_title_card
+    name: HaCasa Smoke Test
+    label: Compatibility dashboard
+
+  - type: custom:button-card
+    template: hc_title_card_backbtn
+    name: Back Button Title
+    label: Template smoke
+
+  - type: custom:button-card
+    template: hc_light_card
+    entity: input_boolean.hacasa_light
+    name: Light
+
+  - type: custom:button-card
+    template: hc_fan_card
+    entity: input_boolean.hacasa_fan
+    name: Fan
+
+  - type: custom:button-card
+    template: hc_switch_card
+    entity: input_boolean.hacasa_switch
+    name: Switch
+    variables:
+      power_entity: sensor.hacasa_power
+
+  - type: custom:button-card
+    template: hc_sensor_card
+    entity: sensor.hacasa_temperature
+    name: Temperature
+
+  - type: custom:button-card
+    template: hc_graph_card
+    entity: sensor.hacasa_power
+    name: Power
+
+  - type: custom:button-card
+    template: hc_weather_card
+    entity: sensor.hacasa_weather_forecast
+    variables:
+      show_forecast: true
+
+  - type: custom:button-card
+    template: hc_security_card
+    entity: input_select.hacasa_security_state
+    name: Security
+
+  - type: custom:button-card
+    template: hc_security_card_small
+    entity: input_select.hacasa_security_state
+    name: Security Small
+
+  - type: custom:button-card
+    template: hc_glance_card
+    name: Glance
+    variables:
+      entity1: sensor.hacasa_temperature
+      entity2: sensor.hacasa_humidity
+      entity3: binary_sensor.hacasa_door
+
+  - type: custom:button-card
+    template: hc_scene_card
+    entity: input_select.hacasa_scene_selector
+    variables:
+      entity_1: input_boolean.hacasa_scene_active
+      name_1: Home
+      icon_1: hacasa:house-fill
+      value_1: home
+      entity_2: input_boolean.hacasa_scene_active
+      name_2: Work
+      icon_2: hacasa:computer
+      value_2: work
+      entity_3: input_boolean.hacasa_scene_active
+      name_3: Away
+      icon_3: hacasa:door-open
+      value_3: away
+      entity_4: input_boolean.hacasa_scene_active
+      name_4: Night
+      icon_4: hacasa:moon-stars
+      value_4: night
+      entity_5: input_boolean.hacasa_scene_active
+      name_5: Movie
+      icon_5: hacasa:clapper-open
+      value_5: movie
+
+  - type: custom:button-card
+    template: hc_navigation_card
+    entity: sensor.hacasa_temperature
+    name: Navigation
+    variables:
+      lights_target_entity: input_boolean.hacasa_light
+
+  - type: custom:button-card
+    template: hc_navigation_card_security
+    entity: input_select.hacasa_security_state
+    name: Security Navigation
+
+  - type: custom:button-card
+    template: hc_room_card
+    entity: group.hacasa_room
+    name: Room
+    icon: hacasa:couch
+    variables:
+      lights_target_entity: input_boolean.hacasa_light
+
+  - type: custom:button-card
+    template: hc_navigationbar_card
+    variables:
+      path_1: /hacasa-dashboard/home
+      icon_1: hacasa:house
+      name_1: Home
+      path_2: /hacasa-dashboard/home
+      icon_2: hacasa:thermometer
+      name_2: Climate
+      path_3: /hacasa-dashboard/home
+      icon_3: hacasa:plug
+      name_3: Energy
+      path_4: /hacasa-dashboard/home
+      icon_4: hacasa:music
+      name_4: Media
+
+  - type: custom:button-card
+    template: hc_media_card
+    entity: input_boolean.hacasa_switch
+    name: Media
+
+  - type: custom:button-card
+    template: hc_battery_card
+    entity: sensor.hacasa_battery
+    name: Battery
+
+  - type: custom:button-card
+    template: hc_number_card
+    entity: input_number.hacasa_number
+    name: Number
+
+  - type: custom:button-card
+    template: hc_toggle_graph_card
+    entity: sensor.hacasa_power
+    name: Toggle Graph
+    variables:
+      toggle_entity: input_boolean.hacasa_toggle
+
+  - type: custom:button-card
+    template: hc_climate_card
+    entity: climate.hacasa_thermostat
+    name: Climate
+    variables:
+      graph_entity: sensor.hacasa_temperature
+
+  - type: custom:button-card
+    template: custom_hc_cover_card
+    entity: cover.hacasa_cover
+    name: Cover
+
+  - type: custom:button-card
+    template: hc_vacuum_card
+    entity: sensor.hacasa_vacuum
+
+  - type: custom:button-card
+    template: hc_washing_machine_card
+    entity: input_boolean.hacasa_washing_machine
+    name: Washing Machine
+
+  - type: custom:button-card
+    template: hc_dishwasher_card
+    entity: sensor.hacasa_dishwasher_state
+    name: Dishwasher
+    variables:
+      progress_entity: sensor.hacasa_dishwasher_progress
+      salt_entity: sensor.hacasa_dishwasher_salt
+      rinse_aid_entity: sensor.hacasa_dishwasher_rinse_aid
+      remaining_time_entity: sensor.hacasa_dishwasher_remaining
+      active_program_entity: input_select.hacasa_dishwasher_program
+
+  - type: custom:button-card
+    template: hc_climate_mode_card
+    entity: input_select.hacasa_climate_mode
+    name: Climate Mode
