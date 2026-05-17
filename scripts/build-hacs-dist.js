@@ -9,7 +9,7 @@ function copyDir(source, destination) {
   fs.mkdirSync(destination, { recursive: true });
 
   for (const entry of fs.readdirSync(source, { withFileTypes: true })) {
-    if (entry.name === ".DS_Store") continue;
+    if (entry.name === ".DS_Store" || entry.name === "__pycache__" || entry.name.endsWith(".pyc")) continue;
 
     const sourcePath = path.join(source, entry.name);
     const destinationPath = path.join(destination, entry.name);
@@ -112,6 +112,11 @@ copyDir(path.join(sourceRoot, "dashboard"), path.join(distRoot, "dashboard"));
 copyDir(path.join(sourceRoot, "themes"), path.join(distRoot, "themes"));
 copyDir(path.join(sourceRoot, "www/images"), path.join(distRoot, "images"));
 copyDir(path.join(sourceRoot, "custom_icons"), path.join(distRoot, "custom_icons"));
+
+const customComponentsRoot = path.join(sourceRoot, "custom_components");
+if (fs.existsSync(customComponentsRoot)) {
+  copyDir(customComponentsRoot, path.join(distRoot, "custom_components"));
+}
 
 rewriteDashboardEntrypoint();
 writeFrontendModule();

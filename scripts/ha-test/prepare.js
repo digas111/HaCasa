@@ -14,6 +14,8 @@ function copyDir(source, destination) {
   fs.mkdirSync(destination, { recursive: true });
 
   for (const entry of fs.readdirSync(source, { withFileTypes: true })) {
+    if (entry.name === ".DS_Store" || entry.name === "__pycache__" || entry.name.endsWith(".pyc")) continue;
+
     const sourcePath = path.join(source, entry.name);
     const destinationPath = path.join(destination, entry.name);
 
@@ -73,6 +75,10 @@ async function main() {
     path.join(configRoot, "configuration.yaml")
   );
   copyDir(path.join(fixtureRoot, "custom_components"), path.join(configRoot, "custom_components"));
+  const integrationSource = path.join(repoRoot, "dist/custom_components");
+  if (fs.existsSync(integrationSource)) {
+    copyDir(integrationSource, path.join(configRoot, "custom_components"));
+  }
 
   for (const dependency of dependencyLock.dependencies) {
     const target = path.join(hacsRoot, dependency.target);

@@ -107,13 +107,23 @@ hc_navigation_card_security:
 hc_room_card:
   template: hc_navigation_card
   variables:
+    light_entities: |
+      [[[
+        const ids = states[entity.entity_id]?.attributes?.entity_id;
+        if (Array.isArray(ids)) {
+          return ids;
+        }
+        return entity?.entity_id ? [entity.entity_id] : [];
+      ]]]
     lights_target_entity: |
       [[[
         return entity.entity_id;
       ]]]
   label: |
     [[[
-      const ids = states[entity.entity_id]?.attributes?.entity_id || [];
+      const ids = Array.isArray(variables.light_entities)
+        ? variables.light_entities
+        : (states[entity.entity_id]?.attributes?.entity_id || []);
       const onCount = ids.filter((id) => states[id] && states[id].state === 'on').length;
       if (onCount === 0) {
         return '';
@@ -147,22 +157,54 @@ hc_room_card:
       - min-height: 128px
       - padding: 0 12px 12px 12px
       - position: relative
+      - background: |
+          [[[
+            const ids = Array.isArray(variables.light_entities)
+              ? variables.light_entities
+              : [variables.lights_target_entity];
+            return ids.some((id) => states[id]?.state === 'on')
+              ? 'var(--color-orange)'
+              : 'var(--ha-card-background)';
+          ]]]
     img_cell:
       - top: 30%
       - left: 30%
     icon:
       - width: 12em
       - opacity: 78%
+      - color: |
+          [[[
+            const ids = Array.isArray(variables.light_entities)
+              ? variables.light_entities
+              : [variables.lights_target_entity];
+            return ids.some((id) => states[id]?.state === 'on')
+              ? 'white'
+              : 'var(--color-orange)';
+          ]]]
     name:
       - align-self: start
       - margin-top: -30px
       - line-height: 1
+      - color: |
+          [[[
+            const ids = Array.isArray(variables.light_entities)
+              ? variables.light_entities
+              : [variables.lights_target_entity];
+            return ids.some((id) => states[id]?.state === 'on') ? 'white' : 'inherit';
+          ]]]
     label:
       - align-self: start
       - margin-top: -15px
       - min-height: 18px
       - line-height: 18px
       - padding-bottom: 54px
+      - color: |
+          [[[
+            const ids = Array.isArray(variables.light_entities)
+              ? variables.light_entities
+              : [variables.lights_target_entity];
+            return ids.some((id) => states[id]?.state === 'on') ? 'white' : 'var(--subtext-color)';
+          ]]]
     custom_fields:
       lights_button:
         - position: absolute
@@ -170,17 +212,33 @@ hc_room_card:
         - bottom: 12px
         - margin: 0
         - z-index: 2
+        - display: |
+            [[[
+              const ids = Array.isArray(variables.light_entities)
+                ? variables.light_entities
+                : [variables.lights_target_entity];
+              return ids.filter(Boolean).length ? 'block' : 'none';
+            ]]]
   custom_fields:
     lights_button:
       card:
         type: custom:button-card
-        entity: "[[[ return variables.lights_target_entity ]]]"
+        entity: |
+          [[[
+            const ids = Array.isArray(variables.light_entities)
+              ? variables.light_entities
+              : [variables.lights_target_entity];
+            return ids[0] || variables.lights_target_entity;
+          ]]]
         show_name: false
         show_state: false
         show_icon: true
         icon: |
           [[[
-            return states[variables.lights_target_entity]?.state === 'on'
+            const ids = Array.isArray(variables.light_entities)
+              ? variables.light_entities
+              : [variables.lights_target_entity];
+            return ids.some((id) => states[id]?.state === 'on')
               ? 'mdi:lightbulb-group'
               : 'mdi:lightbulb-group-off-outline';
           ]]]
@@ -189,7 +247,13 @@ hc_room_card:
           haptic: heavy
           service: light.turn_off
           data:
-            entity_id: "[[[ return variables.lights_target_entity ]]]"
+            entity_id: |
+              [[[
+                const ids = Array.isArray(variables.light_entities)
+                  ? variables.light_entities
+                  : [variables.lights_target_entity];
+                return ids.filter(Boolean);
+              ]]]
         styles:
           card:
             - width: 42px
@@ -199,13 +263,19 @@ hc_room_card:
             - box-shadow: none
             - background: |
                 [[[
-                  return states[variables.lights_target_entity]?.state === 'on'
+                  const ids = Array.isArray(variables.light_entities)
+                    ? variables.light_entities
+                    : [variables.lights_target_entity];
+                  return ids.some((id) => states[id]?.state === 'on')
                     ? 'rgba(255, 255, 255, 0.24)'
                     : 'var(--ha-card-background)';
                 ]]]
             - border: |
                 [[[
-                  return states[variables.lights_target_entity]?.state === 'on'
+                  const ids = Array.isArray(variables.light_entities)
+                    ? variables.light_entities
+                    : [variables.lights_target_entity];
+                  return ids.some((id) => states[id]?.state === 'on')
                     ? 'none'
                     : '1px solid var(--divider-color)';
                 ]]]
@@ -213,7 +283,10 @@ hc_room_card:
             - width: 56%
             - color: |
                 [[[
-                  return states[variables.lights_target_entity]?.state === 'on'
+                  const ids = Array.isArray(variables.light_entities)
+                    ? variables.light_entities
+                    : [variables.lights_target_entity];
+                  return ids.some((id) => states[id]?.state === 'on')
                     ? 'white'
                     : 'var(--color-orange)';
                 ]]]

@@ -9,7 +9,7 @@
     "setup:devcontainer": "node scripts/setup-dev.js --with-system-deps && npm run test:ha:prepare",
     "build:hacs": "node scripts/build-hacs-dist.js",
     "test:ha:prepare": "npm run build:hacs && node scripts/ha-test/prepare.js",
-    "test:ha:static": "npm run test:ha:prepare && node --check dist/HaCasa.js && node scripts/ha-test/validate-yaml.js",
+    "test:ha:static": "npm run test:ha:prepare && node --check dist/HaCasa.js && node --check dist/custom_components/hacasa_generator/frontend/panel.js && python3 -m unittest discover -s tests && node scripts/ha-test/validate-yaml.js",
     "test:ha:up": "docker compose -f compose.ha-test.yaml up -d",
     "test:ha:wait": "node scripts/ha-test/wait-for-ha.js",
     "test:ha:onboard": "node scripts/ha-test/onboard.js",
