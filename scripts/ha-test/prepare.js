@@ -2,30 +2,16 @@ const fs = require("fs");
 const https = require("https");
 const path = require("path");
 
+const { copyDir } = require("./lib/copy-dir");
+
 const repoRoot = path.resolve(__dirname, "../..");
 const testRoot = path.join(repoRoot, ".ha-test");
 const configRoot = path.join(testRoot, "config");
 const hacsRoot = path.join(configRoot, "www/community");
 const hacasaTarget = path.join(hacsRoot, "HaCasa");
 const fixtureRoot = path.join(repoRoot, "tests/ha");
+const seedRoot = path.join(fixtureRoot, "seed-config");
 const dependencyLock = require(path.join(fixtureRoot, "dependencies.json"));
-
-function copyDir(source, destination) {
-  fs.mkdirSync(destination, { recursive: true });
-
-  for (const entry of fs.readdirSync(source, { withFileTypes: true })) {
-    if (entry.name === ".DS_Store" || entry.name === "__pycache__" || entry.name.endsWith(".pyc")) continue;
-
-    const sourcePath = path.join(source, entry.name);
-    const destinationPath = path.join(destination, entry.name);
-
-    if (entry.isDirectory()) {
-      copyDir(sourcePath, destinationPath);
-    } else if (entry.isFile()) {
-      fs.copyFileSync(sourcePath, destinationPath);
-    }
-  }
-}
 
 function download(url, destination, redirectCount = 0) {
   if (redirectCount > 5) {
@@ -79,6 +65,7 @@ async function main() {
   if (fs.existsSync(integrationSource)) {
     copyDir(integrationSource, path.join(configRoot, "custom_components"));
   }
+  copyDir(seedRoot, configRoot);
 
   for (const dependency of dependencyLock.dependencies) {
     const target = path.join(hacsRoot, dependency.target);

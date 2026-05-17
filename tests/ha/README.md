@@ -72,6 +72,37 @@ After local source edits, run `HA: Refresh Dashboard For Visual Check` to
 rebuild the fixture, restart Home Assistant, and print the dashboard URL again.
 Run `HA: Stop Home Assistant` when finished.
 
+## Persisting Test Home Assistant State
+
+`npm run test:ha:prepare` rebuilds `.ha-test/config` from the repo every time.
+Safe Home Assistant state can be committed under `tests/ha/seed-config`; this
+directory is copied into `.ha-test/config` after the generated HaCasa package and
+fixture configuration are installed.
+
+The seed intentionally excludes auth files, tokens, UUIDs, recorder databases,
+logs, and runtime locks. It currently preconfigures the `hacasa_generator`
+integration so the HaCasa Generator sidebar panel is available without manually
+adding the integration after each rebuild.
+
+To refresh the committed seed from the current local HA config, run:
+
+```sh
+npm run test:ha:snapshot-seed
+```
+
+For a full local-only backup, use:
+
+```sh
+npm run test:ha:snapshot-local
+```
+
+Local backups are written to `.ha-test-backups/` and are git-ignored because
+they may contain auth/session state. Restore one with:
+
+```sh
+npm run test:ha:restore-local -- .ha-test-backups/ha-config-YYYY-MM-DD.tar.gz
+```
+
 ## Dependency Updates
 
 Pinned frontend assets live in `tests/ha/dependencies.json`. Update those URLs

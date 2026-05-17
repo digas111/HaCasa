@@ -15,7 +15,10 @@
     "test:ha:onboard": "node scripts/ha-test/onboard.js",
     "test:ha:browser": "node scripts/ha-test/browser-smoke.js",
     "test:ha:down": "docker compose -f compose.ha-test.yaml down -v --remove-orphans",
-    "test:ha": "node scripts/ha-test/run-tests.js"
+    "test:ha": "node scripts/ha-test/run-tests.js",
+    "test:ha:snapshot-seed": "node scripts/ha-test/snapshot-seed.js",
+    "test:ha:snapshot-local": "node scripts/ha-test/snapshot-local.js",
+    "test:ha:restore-local": "node scripts/ha-test/restore-local.js"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",
