@@ -5,12 +5,12 @@ on:
     paths:
       - ".github/workflows/hacs.yml"
       - "hacs.json"
-      - "dist/**"
+      - "custom_components/**"
   pull_request:
     paths:
       - ".github/workflows/hacs.yml"
       - "hacs.json"
-      - "dist/**"
+      - "custom_components/**"
   workflow_dispatch:
 
 permissions: {}
@@ -22,4 +22,4 @@ jobs:
       - name: HACS validation
         uses: hacs/action@main
         with:
-          category: plugin
+          category: integration

@@ -4,7 +4,7 @@ const path = require("path");
 const repoRoot = path.resolve(__dirname, "..");
 const sourceRoot = path.join(repoRoot, "HaCasa");
 const distRoot = path.join(repoRoot, "dist");
-const hacsIntegrationRoot = path.join(repoRoot, "custom_components", "hacasa_generator");
+const integrationRoot = path.join(repoRoot, "custom_components", "hacasa_generator");
 
 function copyDir(source, destination) {
   fs.mkdirSync(destination, { recursive: true });
@@ -114,19 +114,13 @@ copyDir(path.join(sourceRoot, "themes"), path.join(distRoot, "themes"));
 copyDir(path.join(sourceRoot, "www/images"), path.join(distRoot, "images"));
 copyDir(path.join(sourceRoot, "custom_icons"), path.join(distRoot, "custom_icons"));
 
-const customComponentsRoot = path.join(sourceRoot, "custom_components");
-if (fs.existsSync(customComponentsRoot)) {
-  copyDir(customComponentsRoot, path.join(distRoot, "custom_components"));
+if (fs.existsSync(integrationRoot)) {
+  copyDir(path.join(repoRoot, "custom_components"), path.join(distRoot, "custom_components"));
   copyDir(
     path.join(sourceRoot, "themes"),
     path.join(distRoot, "custom_components/hacasa_generator/themes")
   );
-  fs.rmSync(hacsIntegrationRoot, { recursive: true, force: true });
-  copyDir(
-    path.join(customComponentsRoot, "hacasa_generator"),
-    hacsIntegrationRoot
-  );
-  copyDir(path.join(sourceRoot, "themes"), path.join(hacsIntegrationRoot, "themes"));
+  copyDir(path.join(sourceRoot, "themes"), path.join(integrationRoot, "themes"));
 }
 
 rewriteDashboardEntrypoint();

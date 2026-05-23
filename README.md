@@ -63,13 +63,11 @@ See the [local development guide](docs/docs/development/local-development.md) fo
 the full setup.
 
 ## HACS
-HaCasa can be installed with HACS as a custom Dashboard repository:
+HaCasa can be installed with HACS as a custom Integration repository:
 
 ```text
 https://github.com/digas111/HaCasa
 ```
-
-The HACS package is generated in `dist/`. Run `node scripts/build-hacs-dist.js` before publishing a release so the release tag contains the installable dashboard bundle.
 
 ## Credits
 - Designed by [Damian Eickhoff](https://github.com/damianeickhoff)

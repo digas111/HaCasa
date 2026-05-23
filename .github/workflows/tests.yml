@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - ".github/workflows/tests.yml"
+      - "custom_components/**"
       - "HaCasa/**"
       - "scripts/**"
       - "tests/**"
@@ -14,6 +15,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/tests.yml"
+      - "custom_components/**"
       - "HaCasa/**"
       - "scripts/**"
       - "tests/**"
