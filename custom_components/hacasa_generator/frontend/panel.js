@@ -44,7 +44,6 @@ class HaCasaGeneratorPanel extends HTMLElement {
       this._loaded = true;
       this._loadConfigs();
     }
-    this._render();
   }
 
   get hass() {
