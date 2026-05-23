@@ -251,8 +251,44 @@ class HaCasaGeneratorPanel extends HTMLElement {
       .replace(/^-+|-+$/g, "") || "dashboard";
   }
 
+  _snapshotEditor() {
+    const activeElement = this.shadowRoot.activeElement;
+    const activeId = activeElement?.id;
+    if (activeId !== "dashboard-name" && activeId !== "json-editor") {
+      return {};
+    }
+
+    return {
+      activeId,
+      name: this.shadowRoot.querySelector("#dashboard-name")?.value,
+      json: this.shadowRoot.querySelector("#json-editor")?.value,
+      selectionStart: activeElement.selectionStart,
+      selectionEnd: activeElement.selectionEnd,
+      scrollTop: activeElement.scrollTop
+    };
+  }
+
+  _restoreEditor(snapshot) {
+    if (!snapshot.activeId) {
+      return;
+    }
+    const element = this.shadowRoot.querySelector(`#${snapshot.activeId}`);
+    if (!element) {
+      return;
+    }
+    element.focus({ preventScroll: true });
+    if (Number.isInteger(snapshot.selectionStart) && Number.isInteger(snapshot.selectionEnd)) {
+      element.setSelectionRange(snapshot.selectionStart, snapshot.selectionEnd);
+    }
+    if (Number.isInteger(snapshot.scrollTop)) {
+      element.scrollTop = snapshot.scrollTop;
+    }
+  }
+
   _render() {
-    const configText = JSON.stringify(this._config, null, 2);
+    const editorSnapshot = this._snapshotEditor();
+    const configText = editorSnapshot.json ?? JSON.stringify(this._config, null, 2);
+    const dashboardName = editorSnapshot.name ?? this._config.name ?? "";
     this.shadowRoot.innerHTML = `
       <style>
         :host {
@@ -417,8 +453,8 @@ class HaCasaGeneratorPanel extends HTMLElement {
           ${this._error ? `<div class="message error">${this._escape(this._error)}</div>` : ""}
           <div class="field">
             <label for="dashboard-name">Name</label>
-            <input id="dashboard-name" value="${this._escape(this._config.name || "")}">
-            <div class="meta">Render folder: /config/dashboard/HaCasa/<span id="slug-preview">${this._escape(this._slug(this._config.slug || this._config.name))}</span></div>
+            <input id="dashboard-name" value="${this._escape(dashboardName)}">
+            <div class="meta">Render folder: /config/dashboard/HaCasa/<span id="slug-preview">${this._escape(this._slug(this._config.slug || dashboardName))}</span></div>
           </div>
           <div class="toolbar">
             <button data-action="save">Save</button>
@@ -444,6 +480,7 @@ class HaCasaGeneratorPanel extends HTMLElement {
         </main>
       </div>
     `;
+    this._restoreEditor(editorSnapshot);
   }
 
   _escape(value) {
