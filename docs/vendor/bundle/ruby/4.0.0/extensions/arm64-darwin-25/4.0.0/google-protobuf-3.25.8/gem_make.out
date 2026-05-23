@@ -1,3 +1,0 @@
-current directory: /Users/digas/Documents/SmartHome/HaCasa/docs/vendor/bundle/ruby/4.0.0/gems/google-protobuf-3.25.8/ext/google/protobuf_c
-/opt/homebrew/opt/ruby/bin/ruby -rrubygems /Users/digas/Documents/SmartHome/HaCasa/docs/vendor/bundle/ruby/4.0.0/gems/rake-13.2.1/exe/rake RUBYARCHDIR\=/Users/digas/Documents/SmartHome/HaCasa/docs/vendor/bundle/ruby/4.0.0/extensions/arm64-darwin-25/4.0.0/google-protobuf-3.25.8 RUBYLIBDIR\=/Users/digas/Documents/SmartHome/HaCasa/docs/vendor/bundle/ruby/4.0.0/extensions/arm64-darwin-25/4.0.0/google-protobuf-3.25.8
-Skipping build of FFI; `gem install ffi-compiler` to enable.

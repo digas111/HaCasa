@@ -18,9 +18,14 @@ node_modules/
 __pycache__/
 *.py[cod]
 .playwright-browsers/
+.pytest_cache/
 
-# Generated documentation
+# Generated build output
+dist/
 _site/
+docs/_site/
+docs/.jekyll-cache/
+docs/vendor/bundle/
 
 # Legacy/generated Home Assistant local test artifacts
 .ha-test/

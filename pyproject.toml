@@ -1,11 +1,11 @@
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests/components/hacasa_generator"]
-pythonpath = ["HaCasa"]
+pythonpath = ["."]
 addopts = "-ra"
 
 [tool.coverage.run]
-source = ["HaCasa/custom_components/hacasa_generator"]
+source = ["custom_components/hacasa_generator"]
 omit = ["*/frontend/*"]
 
 [tool.coverage.report]

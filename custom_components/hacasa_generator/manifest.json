@@ -1,0 +1,11 @@
+{
+  "domain": "hacasa_generator",
+  "name": "HaCasa Generator",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": ["frontend", "http", "lovelace", "panel_custom", "websocket_api"],
+  "documentation": "https://github.com/digas111/HaCasa",
+  "issue_tracker": "https://github.com/digas111/HaCasa/issues",
+  "iot_class": "local_push",
+  "version": "0.1.0"
+}
