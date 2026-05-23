@@ -36,6 +36,15 @@ class HaCasaGeneratorPanel extends HTMLElement {
     this._preview = null;
     this._renderResult = null;
     this._loaded = false;
+    this._listenersAttached = false;
+    this._editorState = {
+      activeId: null,
+      name: null,
+      json: null,
+      selectionStart: null,
+      selectionEnd: null,
+      scrollTop: 0
+    };
   }
 
   set hass(value) {
@@ -51,8 +60,16 @@ class HaCasaGeneratorPanel extends HTMLElement {
   }
 
   connectedCallback() {
-    this.shadowRoot.addEventListener("click", (event) => this._handleClick(event));
-    this.shadowRoot.addEventListener("input", (event) => this._handleInput(event));
+    if (!this._listenersAttached) {
+      this._listenersAttached = true;
+      this.shadowRoot.addEventListener("click", (event) => this._handleClick(event));
+      this.shadowRoot.addEventListener("focusin", (event) => this._handleFocusIn(event));
+      this.shadowRoot.addEventListener("input", (event) => this._handleInput(event));
+      this.shadowRoot.addEventListener("keyup", (event) => this._handleEditorCursor(event));
+      this.shadowRoot.addEventListener("mouseup", (event) => this._handleEditorCursor(event));
+      this.shadowRoot.addEventListener("pointerdown", (event) => this._handlePointerDown(event));
+      this.shadowRoot.addEventListener("select", (event) => this._handleEditorCursor(event));
+    }
     this._render();
   }
 
@@ -223,7 +240,12 @@ class HaCasaGeneratorPanel extends HTMLElement {
     if (action === "delete") this._deleteConfig();
   }
 
+  _handleFocusIn(event) {
+    this._captureEditorState(event.target);
+  }
+
   _handleInput(event) {
+    this._captureEditorState(event.target);
     if (event.target?.id === "dashboard-name") {
       const previousNameSlug = this._slug(this._config.name);
       const previousSlug = this._config.slug ? this._slug(this._config.slug) : "";
@@ -232,6 +254,16 @@ class HaCasaGeneratorPanel extends HTMLElement {
         this._config.slug = this._slug(event.target.value);
       }
       this._renderSlugOnly();
+    }
+  }
+
+  _handleEditorCursor(event) {
+    this._captureEditorState(event.target);
+  }
+
+  _handlePointerDown(event) {
+    if (!this._isEditorElement(event.target)) {
+      this._editorState.activeId = null;
     }
   }
 
@@ -251,38 +283,71 @@ class HaCasaGeneratorPanel extends HTMLElement {
       .replace(/^-+|-+$/g, "") || "dashboard";
   }
 
+  _isEditorElement(element) {
+    return element?.id === "dashboard-name" || element?.id === "json-editor";
+  }
+
+  _captureEditorState(element) {
+    if (!this._isEditorElement(element)) {
+      return;
+    }
+
+    this._editorState = {
+      activeId: element.id,
+      name: this.shadowRoot.querySelector("#dashboard-name")?.value ?? this._editorState.name,
+      json: this.shadowRoot.querySelector("#json-editor")?.value ?? this._editorState.json,
+      selectionStart: element.selectionStart,
+      selectionEnd: element.selectionEnd,
+      scrollTop: element.scrollTop
+    };
+  }
+
   _snapshotEditor() {
     const activeElement = this.shadowRoot.activeElement;
-    const activeId = activeElement?.id;
-    if (activeId !== "dashboard-name" && activeId !== "json-editor") {
+    if (this._isEditorElement(activeElement)) {
+      this._captureEditorState(activeElement);
+    }
+
+    if (!this._editorState.activeId) {
       return {};
     }
 
-    return {
-      activeId,
-      name: this.shadowRoot.querySelector("#dashboard-name")?.value,
-      json: this.shadowRoot.querySelector("#json-editor")?.value,
-      selectionStart: activeElement.selectionStart,
-      selectionEnd: activeElement.selectionEnd,
-      scrollTop: activeElement.scrollTop
-    };
+    return { ...this._editorState };
   }
 
   _restoreEditor(snapshot) {
     if (!snapshot.activeId) {
       return;
     }
-    const element = this.shadowRoot.querySelector(`#${snapshot.activeId}`);
-    if (!element) {
-      return;
-    }
-    element.focus({ preventScroll: true });
-    if (Number.isInteger(snapshot.selectionStart) && Number.isInteger(snapshot.selectionEnd)) {
-      element.setSelectionRange(snapshot.selectionStart, snapshot.selectionEnd);
-    }
-    if (Number.isInteger(snapshot.scrollTop)) {
-      element.scrollTop = snapshot.scrollTop;
-    }
+
+    const restore = () => {
+      if (this._editorState.activeId !== snapshot.activeId) {
+        return;
+      }
+
+      const element = this.shadowRoot.querySelector(`#${snapshot.activeId}`);
+      if (!element) {
+        return;
+      }
+
+      try {
+        element.focus({ preventScroll: true });
+      } catch (_error) {
+        element.focus();
+      }
+
+      if (Number.isInteger(snapshot.selectionStart) && Number.isInteger(snapshot.selectionEnd)) {
+        element.setSelectionRange(snapshot.selectionStart, snapshot.selectionEnd);
+      }
+      if (Number.isInteger(snapshot.scrollTop)) {
+        element.scrollTop = snapshot.scrollTop;
+      }
+    };
+
+    restore();
+    requestAnimationFrame(restore);
+    setTimeout(restore, 50);
+    setTimeout(restore, 250);
   }
 
   _render() {
