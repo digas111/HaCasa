@@ -4,7 +4,6 @@ const repoRoot = path.resolve(__dirname, "../..");
 process.env.PLAYWRIGHT_BROWSERS_PATH ||= path.join(repoRoot, ".playwright-browsers");
 
 const { chromium } = require("@playwright/test");
-const { ensureChromiumBrowser } = require("./lib/playwright-browser");
 
 const baseUrl = process.env.HA_TEST_URL || "http://127.0.0.1:8123";
 const username = process.env.HA_TEST_USERNAME || "hacasa";
@@ -59,7 +58,6 @@ async function loginIfNeeded(page) {
 }
 
 async function main() {
-  ensureChromiumBrowser(chromium);
   const browser = await chromium.launch();
 
   try {

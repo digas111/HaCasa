@@ -20,6 +20,15 @@ class ConfigPatchResult:
     filename: str
 
 
+@dataclass(frozen=True)
+class FrontendPatchResult:
+    """Result of a Home Assistant frontend theme patch."""
+
+    changed: bool
+    backup_path: str | None
+    themes_path: str
+
+
 def _quote(value: str) -> str:
     return yaml.safe_dump(value, default_style='"').strip()
 
@@ -31,6 +40,22 @@ def _line_indent(line: str) -> int:
 def _is_top_level(line: str) -> bool:
     stripped = line.strip()
     return bool(stripped) and not stripped.startswith("#") and _line_indent(line) == 0
+
+
+def _section_bounds(lines: list[str], section: str) -> tuple[int | None, int]:
+    section_start = next(
+        (index for index, line in enumerate(lines) if line.startswith(f"{section}:")),
+        None,
+    )
+    if section_start is None:
+        return None, len(lines)
+
+    section_end = len(lines)
+    for index in range(section_start + 1, len(lines)):
+        if _is_top_level(lines[index]):
+            section_end = index
+            break
+    return section_start, section_end
 
 
 def _entry_lines(
@@ -53,6 +78,7 @@ def patch_lovelace_dashboard(
     icon: str,
     filename: str,
     show_in_sidebar: bool = True,
+    previous_dashboard_key: str | None = None,
 ) -> ConfigPatchResult:
     """Add or update a YAML Lovelace dashboard entry in configuration.yaml.
 
@@ -69,21 +95,12 @@ def patch_lovelace_dashboard(
         lines = ["lovelace:\n", "  mode: storage\n", "  dashboards:\n", *entry]
         return _write_if_changed(path, source, lines, dashboard_key, filename)
 
-    lovelace_start = next(
-        (index for index, line in enumerate(lines) if line.startswith("lovelace:")),
-        None,
-    )
+    lovelace_start, lovelace_end = _section_bounds(lines, "lovelace")
     if lovelace_start is None:
         if lines[-1] and not lines[-1].endswith("\n"):
             lines[-1] += "\n"
         lines.extend(["\n", "lovelace:\n", "  mode: storage\n", "  dashboards:\n", *entry])
         return _write_if_changed(path, source, lines, dashboard_key, filename)
-
-    lovelace_end = len(lines)
-    for index in range(lovelace_start + 1, len(lines)):
-        if _is_top_level(lines[index]):
-            lovelace_end = index
-            break
 
     dashboards_start = None
     for index in range(lovelace_start + 1, lovelace_end):
@@ -103,11 +120,16 @@ def patch_lovelace_dashboard(
             dashboards_end = index
             break
 
-    key_line = f"{dashboard_key}:"
+    key_lines = [f"{dashboard_key}:"]
+    if previous_dashboard_key and previous_dashboard_key != dashboard_key:
+        key_lines.append(f"{previous_dashboard_key}:")
     existing_start = None
-    for index in range(dashboards_start + 1, dashboards_end):
-        if _line_indent(lines[index]) == 4 and lines[index].strip() == key_line:
-            existing_start = index
+    for key_line in key_lines:
+        for index in range(dashboards_start + 1, dashboards_end):
+            if _line_indent(lines[index]) == 4 and lines[index].strip() == key_line:
+                existing_start = index
+                break
+        if existing_start is not None:
             break
 
     if existing_start is None:
@@ -122,6 +144,36 @@ def patch_lovelace_dashboard(
         lines[existing_start:existing_end] = entry
 
     return _write_if_changed(path, source, lines, dashboard_key, filename)
+
+
+def patch_frontend_themes(
+    config_path: str | Path, themes_path: str = "themes"
+) -> FrontendPatchResult:
+    """Ensure Home Assistant loads themes from the standard themes folder."""
+
+    path = Path(config_path)
+    source = path.read_text(encoding="utf-8") if path.exists() else ""
+    lines = source.splitlines(keepends=True)
+    entry = f"  themes: !include_dir_merge_named {themes_path}\n"
+
+    if not lines:
+        lines = ["frontend:\n", entry]
+        return _write_frontend_if_changed(path, source, lines, themes_path)
+
+    frontend_start, frontend_end = _section_bounds(lines, "frontend")
+    if frontend_start is None:
+        if lines[-1] and not lines[-1].endswith("\n"):
+            lines[-1] += "\n"
+        lines.extend(["\n", "frontend:\n", entry])
+        return _write_frontend_if_changed(path, source, lines, themes_path)
+
+    for index in range(frontend_start + 1, frontend_end):
+        stripped = lines[index].strip()
+        if stripped.startswith("themes:"):
+            return FrontendPatchResult(False, None, themes_path)
+
+    lines[frontend_end:frontend_end] = [entry]
+    return _write_frontend_if_changed(path, source, lines, themes_path)
 
 
 def _write_if_changed(
@@ -141,3 +193,22 @@ def _write_if_changed(
 
     path.write_text(updated, encoding="utf-8")
     return ConfigPatchResult(True, backup_path, dashboard_key, filename)
+
+
+def _write_frontend_if_changed(
+    path: Path, original: str, lines: list[str], themes_path: str
+) -> FrontendPatchResult:
+    updated = "".join(lines)
+    if updated == original:
+        return FrontendPatchResult(False, None, themes_path)
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    backup_path = None
+    if path.exists():
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        backup = path.with_name(f"{path.name}.{timestamp}.bak")
+        shutil.copy2(path, backup)
+        backup_path = str(backup)
+
+    path.write_text(updated, encoding="utf-8")
+    return FrontendPatchResult(True, backup_path, themes_path)

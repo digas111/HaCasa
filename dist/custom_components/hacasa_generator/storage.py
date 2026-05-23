@@ -30,15 +30,24 @@ class HaCasaGeneratorStore:
     async def async_list(self) -> list[dict[str, Any]]:
         """Return configuration summaries."""
 
-        return [
-            {
-                "id": item["id"],
-                "name": item["name"],
-                "slug": item["slug"],
-                "updated_at": item.get("updated_at"),
-            }
-            for item in self._data["configs"]
-        ]
+        summaries = []
+        for item in self._data["configs"]:
+            if not isinstance(item, dict):
+                continue
+            config_id = item.get("id") or item.get("slug")
+            name = item.get("name")
+            slug = item.get("slug") or config_id
+            if not config_id or not name or not slug:
+                continue
+            summaries.append(
+                {
+                    "id": config_id,
+                    "name": name,
+                    "slug": slug,
+                    "updated_at": item.get("updated_at"),
+                }
+            )
+        return summaries
 
     async def async_get(self, config_id: str) -> dict[str, Any] | None:
         """Return a full stored configuration."""
@@ -63,23 +72,23 @@ class HaCasaGeneratorStore:
         configs = self._data["configs"]
         if config_id:
             for index, item in enumerate(configs):
-                if item["id"] == config_id:
+                if isinstance(item, dict) and item.get("id") == config_id:
+                    item_slug = str(item.get("slug") or item.get("id") or "")
+                    config_slug = config.get("slug")
+                    if config_slug is None or make_slug(config_slug) == item_slug:
+                        slug = make_slug(name)
+                    slug = self._unique_slug(slug, config_id)
                     configs[index] = {
                         **item,
                         "name": name,
                         "slug": slug,
-                        "config": deepcopy(config),
+                        "config": deepcopy({**config, "slug": slug}),
                         "updated_at": now,
                     }
                     await self._store.async_save(self._data)
                     return deepcopy(configs[index])
 
-        existing_slugs = {item["slug"] for item in configs}
-        unique_slug = slug
-        suffix = 2
-        while unique_slug in existing_slugs:
-            unique_slug = f"{slug}-{suffix}"
-            suffix += 1
+        unique_slug = self._unique_slug(slug)
 
         item = {
             "id": unique_slug,
@@ -93,11 +102,30 @@ class HaCasaGeneratorStore:
         await self._store.async_save(self._data)
         return deepcopy(item)
 
+    def _unique_slug(self, slug: str, config_id: str | None = None) -> str:
+        existing_slugs = {
+            item["slug"]
+            for item in self._data["configs"]
+            if isinstance(item, dict)
+            and item.get("slug")
+            and (config_id is None or item.get("id") != config_id)
+        }
+        unique_slug = slug
+        suffix = 2
+        while unique_slug in existing_slugs:
+            unique_slug = f"{slug}-{suffix}"
+            suffix += 1
+        return unique_slug
+
     async def async_delete(self, config_id: str) -> bool:
         """Delete a stored dashboard configuration."""
 
         configs = self._data["configs"]
-        new_configs = [item for item in configs if item["id"] != config_id]
+        new_configs = [
+            item
+            for item in configs
+            if not isinstance(item, dict) or item.get("id") != config_id
+        ]
         if len(new_configs) == len(configs):
             return False
         self._data["configs"] = new_configs

@@ -12,45 +12,55 @@ The sole purpose of HaCasa is to provide a modern, minimalistic dashboard for Ho
 All the documentation about downloading, installing and configuring can be found on our [documentation page](https://digas111.github.io/HaCasa/).
 
 ## Development
-The fastest way to work on HaCasa is with the included devcontainer. Clone the
-repo, open it in VS Code or another Dev Containers-compatible editor, and choose
-`Reopen in Container`. The container installs Node dependencies, Playwright
-Chromium, Docker, and Docker Compose so the Home Assistant smoke harness can run
-without extra local setup. The devcontainer uses Docker-in-Docker, so the local
-Dev Containers runtime must allow privileged containers.
-
-Docker Desktop is the supported local runtime. On macOS, share the parent folder
-that contains this repo in `Docker Desktop > Settings > Resources > File
-Sharing` before starting the devcontainer. The workspace uses the normal Dev
-Containers bind mount, so local uncommitted edits are visible inside the
-devcontainer automatically.
-
-For local development without the devcontainer, install everything needed for
-the Home Assistant smoke harness with one command:
+Install the Node dependencies with:
 
 ```sh
-npm run setup:ha
+npm run setup
+```
+
+Home Assistant integration tests use pytest and require Python 3.14.2 or newer,
+matching the current Home Assistant development environment. Install the pinned
+test dependencies in a Python 3.14 virtual environment:
+
+```sh
+python3.14 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-test.txt
 ```
 
 Common test commands:
 
 ```sh
-npm run test:ha:static
-npm run test:ha:up
-npm run test:ha:wait
-npm run test:ha:browser
-npm run test:ha:down
+npm run test:static
+npm run test:python
+npm test
 ```
 
-VS Code tasks are also available:
+The automated test workflow does not start, onboard, or manage a Home Assistant
+instance. Tests run against Home Assistant's pytest fixtures.
 
-- `HA: Run Smoke Tests`
-- `HA: Start Dashboard For Visual Check`
-- `HA: Refresh Dashboard For Visual Check`
-- `HA: Stop Home Assistant`
+### Manual Home Assistant VM testing
 
-The visual-check tasks create a local Home Assistant test account. Log in with
-`hacasa` / `hacasa`.
+For visual checks, use a persistent local Home Assistant OS VM with SSH access.
+The default local development target is `root@192.168.0.204` and the Home
+Assistant URL is `http://192.168.0.204:8123`.
+
+1. Copy `.ha-local.example.json` to `.ha-local.json`.
+2. Confirm the SSH and Home Assistant settings in `.ha-local.json`.
+3. Configure HaCasa once in the VM's `configuration.yaml`.
+4. Sync repo changes into the VM:
+
+   ```sh
+   npm run ha:sync
+   ```
+
+Use `npm run ha:sync:dry-run` to verify the SSH/API actions before copying.
+The sync task restarts Home Assistant only when the Python integration code
+changed. For dashboard/frontend-only changes, refresh the browser and clear the
+Home Assistant frontend cache if needed.
+
+See the [local development guide](docs/docs/development/local-development.md) for
+the full setup.
 
 ## HACS
 HaCasa can be installed with HACS as a custom Dashboard repository:
