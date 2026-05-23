@@ -116,6 +116,10 @@ copyDir(path.join(sourceRoot, "custom_icons"), path.join(distRoot, "custom_icons
 const customComponentsRoot = path.join(sourceRoot, "custom_components");
 if (fs.existsSync(customComponentsRoot)) {
   copyDir(customComponentsRoot, path.join(distRoot, "custom_components"));
+  copyDir(
+    path.join(sourceRoot, "themes"),
+    path.join(distRoot, "custom_components/hacasa_generator/themes")
+  );
 }
 
 rewriteDashboardEntrypoint();

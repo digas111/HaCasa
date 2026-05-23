@@ -1,6 +1,6 @@
 const DEFAULT_CONFIG = {
   name: "New HaCasa Dashboard",
-  theme: "HaCasa",
+  theme: "HaCasa Gold",
   icon: "mdi:view-dashboard",
   overview: {},
   navigation: [],
@@ -64,6 +64,29 @@ class HaCasaGeneratorPanel extends HTMLElement {
     return this._hass.connection.sendMessagePromise({ type, ...payload });
   }
 
+  _errorMessage(error) {
+    if (!error) {
+      return "Unknown error";
+    }
+    if (typeof error === "string") {
+      return error;
+    }
+    if (error.message && error.code) {
+      return `${error.message} (${error.code})`;
+    }
+    if (error.message) {
+      return error.message;
+    }
+    if (error.code) {
+      return error.code;
+    }
+    try {
+      return JSON.stringify(error);
+    } catch (_jsonError) {
+      return String(error);
+    }
+  }
+
   async _loadConfigs() {
     try {
       this._configs = await this._call("hacasa_generator/list_configs");
@@ -73,14 +96,14 @@ class HaCasaGeneratorPanel extends HTMLElement {
         this._render();
       }
     } catch (error) {
-      this._error = error.message || String(error);
+      this._error = this._errorMessage(error);
       this._render();
     }
   }
 
   async _selectConfig(id) {
     try {
-      const item = await this._call("hacasa_generator/get_config", { id });
+      const item = await this._call("hacasa_generator/get_config", { config_id: id });
       this._selectedId = item.id;
       this._config = item.config || cloneDefaultConfig();
       this._status = "";
@@ -89,7 +112,7 @@ class HaCasaGeneratorPanel extends HTMLElement {
       this._renderResult = null;
       this._render();
     } catch (error) {
-      this._error = error.message || String(error);
+      this._error = this._errorMessage(error);
       this._render();
     }
   }
@@ -108,8 +131,13 @@ class HaCasaGeneratorPanel extends HTMLElement {
     const name = this.shadowRoot.querySelector("#dashboard-name")?.value.trim();
     const raw = this.shadowRoot.querySelector("#json-editor")?.value || "{}";
     const config = JSON.parse(raw);
+    const previousNameSlug = this._slug(config.name);
+    const previousSlug = config.slug ? this._slug(config.slug) : "";
     if (name) {
       config.name = name;
+    }
+    if (!previousSlug || previousSlug === previousNameSlug) {
+      config.slug = this._slug(config.name);
     }
     return config;
   }
@@ -118,7 +146,7 @@ class HaCasaGeneratorPanel extends HTMLElement {
     try {
       const config = this._readEditorConfig();
       const item = await this._call("hacasa_generator/save_config", {
-        id: this._selectedId || undefined,
+        config_id: this._selectedId || undefined,
         config
       });
       this._selectedId = item.id;
@@ -127,7 +155,7 @@ class HaCasaGeneratorPanel extends HTMLElement {
       this._error = "";
       await this._loadConfigs();
     } catch (error) {
-      this._error = error.message || String(error);
+      this._error = this._errorMessage(error);
       this._status = "";
       this._render();
     }
@@ -142,7 +170,7 @@ class HaCasaGeneratorPanel extends HTMLElement {
       this._error = "";
       this._render();
     } catch (error) {
-      this._error = error.message || String(error);
+      this._error = this._errorMessage(error);
       this._status = "";
       this._render();
     }
@@ -152,7 +180,7 @@ class HaCasaGeneratorPanel extends HTMLElement {
     try {
       const config = this._readEditorConfig();
       this._renderResult = await this._call("hacasa_generator/render", {
-        id: this._selectedId || undefined,
+        config_id: this._selectedId || undefined,
         config
       });
       this._selectedId = this._renderResult.config.id;
@@ -162,7 +190,7 @@ class HaCasaGeneratorPanel extends HTMLElement {
       await this._loadConfigs();
       this._render();
     } catch (error) {
-      this._error = error.message || String(error);
+      this._error = this._errorMessage(error);
       this._status = "";
       this._render();
     }
@@ -173,11 +201,11 @@ class HaCasaGeneratorPanel extends HTMLElement {
       return;
     }
     try {
-      await this._call("hacasa_generator/delete_config", { id: this._selectedId });
+      await this._call("hacasa_generator/delete_config", { config_id: this._selectedId });
       this._newConfig();
       await this._loadConfigs();
     } catch (error) {
-      this._error = error.message || String(error);
+      this._error = this._errorMessage(error);
       this._render();
     }
   }
@@ -198,7 +226,12 @@ class HaCasaGeneratorPanel extends HTMLElement {
 
   _handleInput(event) {
     if (event.target?.id === "dashboard-name") {
+      const previousNameSlug = this._slug(this._config.name);
+      const previousSlug = this._config.slug ? this._slug(this._config.slug) : "";
       this._config = { ...this._config, name: event.target.value };
+      if (!previousSlug || previousSlug === previousNameSlug) {
+        this._config.slug = this._slug(event.target.value);
+      }
       this._renderSlugOnly();
     }
   }
@@ -206,17 +239,17 @@ class HaCasaGeneratorPanel extends HTMLElement {
   _renderSlugOnly() {
     const slug = this.shadowRoot.querySelector("#slug-preview");
     if (slug) {
-      slug.textContent = this._slug(this._config.name);
+      slug.textContent = this._slug(this._config.slug || this._config.name);
     }
   }
 
   _slug(value) {
     return (value || "dashboard")
       .normalize("NFKD")
-      .replace(/[^\w\s-]/g, "")
-      .trim()
+      .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
-      .replace(/[-\s]+/g, "-") || "dashboard";
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "dashboard";
   }
 
   _render() {
@@ -386,7 +419,7 @@ class HaCasaGeneratorPanel extends HTMLElement {
           <div class="field">
             <label for="dashboard-name">Name</label>
             <input id="dashboard-name" value="${this._escape(this._config.name || "")}">
-            <div class="meta">Render folder: /config/dashboard/HaCasa/<span id="slug-preview">${this._escape(this._slug(this._config.name))}</span></div>
+            <div class="meta">Render folder: /config/dashboard/HaCasa/<span id="slug-preview">${this._escape(this._slug(this._config.slug || this._config.name))}</span></div>
           </div>
           <div class="toolbar">
             <button data-action="save">Save</button>

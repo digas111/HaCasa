@@ -25,113 +25,15 @@
       "problemMatcher": []
     },
     {
-      "label": "HA: Prepare Fixture",
+      "label": "HA: Sync And Reload Local VM",
       "type": "npm",
-      "script": "test:ha:prepare",
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      }
-    },
-    {
-      "label": "HA: Start Home Assistant",
-      "type": "npm",
-      "script": "test:ha:up",
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      }
-    },
-    {
-      "label": "HA: Wait For Home Assistant",
-      "type": "npm",
-      "script": "test:ha:wait",
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      }
-    },
-    {
-      "label": "HA: Ensure Test Account",
-      "type": "npm",
-      "script": "test:ha:onboard",
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      }
-    },
-    {
-      "label": "HA: Run Smoke Tests",
-      "type": "npm",
-      "script": "test:ha",
-      "group": {
-        "kind": "test",
-        "isDefault": true
-      },
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      }
-    },
-    {
-      "label": "HA: Start Dashboard For Visual Check",
-      "type": "shell",
-      "command": "node",
-      "args": [
-        "-e",
-        "console.log('Home Assistant is ready: http://127.0.0.1:8123/hacasa-dashboard/home')"
-      ],
-      "dependsOrder": "sequence",
-      "dependsOn": [
-        "HA: Prepare Fixture",
-        "HA: Start Home Assistant",
-        "HA: Wait For Home Assistant",
-        "HA: Ensure Test Account"
-      ],
+      "script": "ha:sync",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
         "panel": "shared"
       },
-      "detail": "Starts Home Assistant at http://127.0.0.1:8123/hacasa-dashboard/home"
-    },
-    {
-      "label": "HA: Refresh Dashboard For Visual Check",
-      "type": "shell",
-      "command": "node",
-      "args": [
-        "-e",
-        "console.log('Home Assistant refreshed: http://127.0.0.1:8123/hacasa-dashboard/home')"
-      ],
-      "dependsOrder": "sequence",
-      "dependsOn": [
-        "HA: Stop Home Assistant",
-        "HA: Prepare Fixture",
-        "HA: Start Home Assistant",
-        "HA: Wait For Home Assistant",
-        "HA: Ensure Test Account"
-      ],
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "detail": "Rebuilds the dashboard fixture, restarts Home Assistant, and prints the dashboard URL."
-    },
-    {
-      "label": "HA: Stop Home Assistant",
-      "type": "npm",
-      "script": "test:ha:down",
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      }
+      "detail": "Builds HaCasa, copies it to the configured Home Assistant VM over SSH, and restarts only when integration code changed."
     }
   ]
 }

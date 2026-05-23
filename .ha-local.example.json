@@ -1,0 +1,10 @@
+{
+  "url": "http://192.168.0.204:8123",
+  "username": "test",
+  "password": "test",
+  "sshHost": "192.168.0.204",
+  "sshUser": "root",
+  "sshPort": 22,
+  "sshKeyPath": ".ha-local-ssh/id_ed25519",
+  "remoteConfigPath": "/config"
+}

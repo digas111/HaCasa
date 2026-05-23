@@ -1,0 +1,140 @@
+hc_number_card:
+  show_label: true
+  triggers_update: "all"
+  show_state: false
+  label: |
+    [[[
+      let val = states[entity.entity_id].state;
+      let uom = states[entity.entity_id].attributes.unit_of_measurement ?? '';
+      if (!val) return '—';
+
+      return `${Math.round(parseFloat(val))} ${uom}`;
+    ]]]
+  show_icon: false
+  styles:
+    grid:
+      - grid-template-areas: |
+          'l . buttons'
+          'n . buttons'
+          's . buttons'
+      - grid-template-columns: 1fr auto auto
+      - grid-template-rows: min-content auto min-content min-content
+      - column-gap: 10px
+    card:
+      - padding: 20px
+      - border-radius: 20px
+      - transition: background 0.5s ease-in-out;
+    name:
+      - justify-self: start
+      - align-self: end
+      - font-family: Montserrat
+      - font-weight: 500
+      - z-index: 2
+    label:
+      - font-size: 5em
+      - justify-self: start
+      - align-self: start
+      - font-weight: 700
+      - font-family: Montserrat
+      - z-index: 2
+    state:
+      - justify-self: start
+      - opacity: 0.8
+      - font-size: 12px
+      - font-family: montserrat
+      - z-index: 2
+  custom_fields:
+    buttons:
+      card:
+        type: custom:button-card
+        styles:
+          grid:
+            - grid-template-areas: |
+                "up"
+                "middle"
+                "down"
+            - row-gap: 0.3rem
+          card:
+            - padding: 10px
+            - border-radius: 50px
+            - background-color: var(--contrast-10)
+            - z-index: 3
+        custom_fields:
+          up:
+            card:
+              type: custom:button-card
+              icon: mdi:chevron-up
+              styles:
+                icon:
+                  - width: 25px
+                  - opacity: >
+                      [[[
+                        const s = states[entity.entity_id];
+                        if (!s) return 0;
+                        const val = parseFloat(s.state);
+                        const max = Number(s.attributes.max);
+                        if (isNaN(val)) return 0;
+                        if (isNaN(max)) return 1;
+                        return val < max ? 1 : 0;
+                      ]]]
+                card:
+                  - padding: 10px
+                  - border-radius: 500px
+                  - box-shadow: none
+                  - pointer-events: auto
+                  - background: none
+                  - pointer-events: >
+                      [[[
+                        const s = states[entity.entity_id];
+                        if (!s) return 'none';
+                        const val = parseFloat(s.state);
+                        const max = Number(s.attributes.max);
+                        if (isNaN(val)) return 'none';
+                        if (isNaN(max)) return 'auto';
+                        return val < max ? 'auto' : 'none';
+                      ]]]
+              tap_action:
+                action: call-service
+                haptic: heavy
+                service: input_number.increment
+                target:
+                  entity_id: "[[[ return entity.entity_id ]]]"
+          down:
+            card:
+              type: custom:button-card
+              icon: mdi:chevron-down
+              styles:
+                icon:
+                  - width: 25px
+                  - opacity: >
+                      [[[
+                        const s = states[entity.entity_id];
+                        if (!s) return 0;
+                        const val = parseFloat(s.state);
+                        const min = Number(s.attributes.min);
+                        if (isNaN(val)) return 0;
+                        if (isNaN(min)) return 1;
+                        return val > min ? 1 : 0;
+                      ]]]
+                card:
+                  - padding: 10px
+                  - border-radius: 500px
+                  - box-shadow: none
+                  - pointer-events: auto
+                  - background: none
+                  - pointer-events: >
+                      [[[
+                        const s = states[entity.entity_id];
+                        if (!s) return 'none';
+                        const val = parseFloat(s.state);
+                        const min = Number(s.attributes.min);
+                        if (isNaN(val)) return 'none';
+                        if (isNaN(min)) return 'auto';
+                        return val > min ? 'auto' : 'none';
+                      ]]]
+              tap_action:
+                action: call-service
+                haptic: heavy
+                service: input_number.decrement
+                target:
+                  entity_id: "[[[ return entity.entity_id ]]]"

@@ -121,7 +121,7 @@ def normalize_config(config: dict[str, Any]) -> dict[str, Any]:
     normalized = {**config}
     normalized["name"] = name
     normalized["slug"] = make_slug(config.get("slug") or name)
-    normalized["theme"] = config.get("theme") or "HaCasa"
+    normalized["theme"] = config.get("theme") or "HaCasa Gold"
     normalized["icon"] = config.get("icon") or "mdi:view-dashboard"
     normalized["rooms"] = rooms
     return normalized

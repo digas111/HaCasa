@@ -1,0 +1,60 @@
+name: Tests
+
+on:
+  push:
+    paths:
+      - ".github/workflows/tests.yml"
+      - "HaCasa/**"
+      - "scripts/**"
+      - "tests/**"
+      - "package.json"
+      - "package-lock.json"
+      - "pyproject.toml"
+      - "requirements-test.txt"
+  pull_request:
+    paths:
+      - ".github/workflows/tests.yml"
+      - "HaCasa/**"
+      - "scripts/**"
+      - "tests/**"
+      - "package.json"
+      - "package-lock.json"
+      - "pyproject.toml"
+      - "requirements-test.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build HACS package
+        run: npm run build:hacs
+
+      - name: Run static checks
+        run: npm run test:static
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install Python test dependencies
+        run: python -m pip install -r requirements-test.txt
+
+      - name: Run pytest
+        run: pytest --cov=custom_components.hacasa_generator --cov-report=term-missing

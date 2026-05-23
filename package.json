@@ -2,26 +2,17 @@
   "name": "hacasa",
   "version": "0.0.0",
   "private": true,
-  "description": "HaCasa Home Assistant dashboard test harness",
+  "description": "HaCasa Home Assistant dashboard development tools",
   "scripts": {
     "setup": "node scripts/setup-dev.js",
-    "setup:ha": "npm run setup && npm run test:ha:prepare",
-    "setup:devcontainer": "node scripts/setup-dev.js --with-system-deps && npm run test:ha:prepare",
     "build:hacs": "node scripts/build-hacs-dist.js",
-    "test:ha:prepare": "npm run build:hacs && node scripts/ha-test/prepare.js",
-    "test:ha:static": "npm run test:ha:prepare && node --check dist/HaCasa.js && node --check dist/custom_components/hacasa_generator/frontend/panel.js && python3 -m unittest discover -s tests && node scripts/ha-test/validate-yaml.js",
-    "test:ha:up": "docker compose -f compose.ha-test.yaml up -d",
-    "test:ha:wait": "node scripts/ha-test/wait-for-ha.js",
-    "test:ha:onboard": "node scripts/ha-test/onboard.js",
-    "test:ha:browser": "node scripts/ha-test/browser-smoke.js",
-    "test:ha:down": "docker compose -f compose.ha-test.yaml down -v --remove-orphans",
-    "test:ha": "node scripts/ha-test/run-tests.js",
-    "test:ha:snapshot-seed": "node scripts/ha-test/snapshot-seed.js",
-    "test:ha:snapshot-local": "node scripts/ha-test/snapshot-local.js",
-    "test:ha:restore-local": "node scripts/ha-test/restore-local.js"
+    "test:static": "npm run build:hacs && node --check dist/HaCasa.js && node --check dist/custom_components/hacasa_generator/frontend/panel.js && node scripts/validate-yaml.js",
+    "test:python": "pytest --cov=custom_components.hacasa_generator --cov-report=term-missing",
+    "test": "npm run test:static && npm run test:python",
+    "ha:sync": "npm run build:hacs && node scripts/sync-ha-local.js",
+    "ha:sync:dry-run": "node scripts/sync-ha-local.js --dry-run"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.1",
     "yaml": "2.7.0"
   }
 }

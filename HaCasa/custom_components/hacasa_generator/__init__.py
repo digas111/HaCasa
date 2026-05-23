@@ -4,16 +4,19 @@ from __future__ import annotations
 
 from pathlib import Path
 import inspect
+import re
+import shutil
 from typing import Any
 
 import voluptuous as vol
 
 from homeassistant.components import panel_custom, websocket_api
+from homeassistant.components.frontend import async_remove_panel as async_remove_frontend_panel
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import area_registry as ar, device_registry as dr, entity_registry as er
 
-from .config_patch import patch_lovelace_dashboard
+from .config_patch import patch_frontend_themes, patch_lovelace_dashboard
 from .const import (
     DASHBOARD_BASE_DIR,
     DATA_STORE,
@@ -24,7 +27,7 @@ from .const import (
     PANEL_URL,
     STATIC_URL,
 )
-from .generator import resolve_dashboard_config, write_dashboard
+from .generator import dashboard_key_for_slug, resolve_dashboard_config, write_dashboard
 from .storage import HaCasaGeneratorStore
 
 PLATFORMS: list[str] = []
@@ -58,7 +61,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload HaCasa Generator."""
 
-    remove_result = panel_custom.async_remove_panel(hass, PANEL_URL)
+    remove_panel = getattr(panel_custom, "async_remove_panel", None)
+    remove_result = (
+        remove_panel(hass, PANEL_URL)
+        if remove_panel
+        else async_remove_frontend_panel(hass, PANEL_URL, warn_if_unknown=False)
+    )
     if inspect.isawaitable(remove_result):
         await remove_result
     hass.data.get(DOMAIN, {}).pop(DATA_STORE, None)
@@ -91,79 +99,79 @@ def _store(hass: HomeAssistant) -> HaCasaGeneratorStore:
     return hass.data[DOMAIN][DATA_STORE]
 
 
-@websocket_api.websocket_command({vol.Required("type"): "hacasa_generator/list_configs"})
+@websocket_api.require_admin
 @websocket_api.async_response
+@websocket_api.websocket_command({vol.Required("type"): "hacasa_generator/list_configs"})
 async def _ws_list_configs(
     hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
 ) -> None:
-    connection.require_admin()
     connection.send_result(msg["id"], await _store(hass).async_list())
 
 
+@websocket_api.require_admin
+@websocket_api.async_response
 @websocket_api.websocket_command(
     {
         vol.Required("type"): "hacasa_generator/get_config",
-        vol.Required("id"): str,
+        vol.Required("config_id"): str,
     }
 )
-@websocket_api.async_response
 async def _ws_get_config(
     hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
 ) -> None:
-    connection.require_admin()
-    item = await _store(hass).async_get(msg["id"])
+    item = await _store(hass).async_get(msg["config_id"])
     if item is None:
         connection.send_error(msg["id"], "not_found", "Dashboard configuration not found")
         return
     connection.send_result(msg["id"], item)
 
 
+@websocket_api.require_admin
+@websocket_api.async_response
 @websocket_api.websocket_command(
     {
         vol.Required("type"): "hacasa_generator/save_config",
-        vol.Optional("id"): str,
+        vol.Optional("config_id"): str,
         vol.Required("config"): dict,
     }
 )
-@websocket_api.async_response
 async def _ws_save_config(
     hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
 ) -> None:
-    connection.require_admin()
     try:
-        item = await _store(hass).async_save_config(msg["config"], msg.get("id"))
+        item = await _store(hass).async_save_config(msg["config"], msg.get("config_id"))
     except ValueError as err:
         connection.send_error(msg["id"], "invalid_config", str(err))
         return
     connection.send_result(msg["id"], item)
 
 
+@websocket_api.require_admin
+@websocket_api.async_response
 @websocket_api.websocket_command(
     {
         vol.Required("type"): "hacasa_generator/delete_config",
-        vol.Required("id"): str,
+        vol.Required("config_id"): str,
     }
 )
-@websocket_api.async_response
 async def _ws_delete_config(
     hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
 ) -> None:
-    connection.require_admin()
-    deleted = await _store(hass).async_delete(msg["id"])
+    deleted = await _store(hass).async_delete(msg["config_id"])
     connection.send_result(msg["id"], {"deleted": deleted})
 
 
+@websocket_api.require_admin
+@websocket_api.async_response
 @websocket_api.websocket_command(
     {
         vol.Required("type"): "hacasa_generator/preview",
         vol.Required("config"): dict,
     }
 )
-@websocket_api.async_response
 async def _ws_preview(
     hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
 ) -> None:
-    connection.require_admin()
     try:
         resolved = resolve_dashboard_config(msg["config"], _registry_entities(hass))
     except ValueError as err:
@@ -186,20 +194,24 @@ async def _ws_preview(
     )
 
 
+@websocket_api.require_admin
+@websocket_api.async_response
 @websocket_api.websocket_command(
     {
         vol.Required("type"): "hacasa_generator/render",
-        vol.Optional("id"): str,
+        vol.Optional("config_id"): str,
         vol.Required("config"): dict,
     }
 )
-@websocket_api.async_response
 async def _ws_render(
     hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
 ) -> None:
-    connection.require_admin()
     try:
-        item = await _store(hass).async_save_config(msg["config"], msg.get("id"))
+        previous_item = (
+            await _store(hass).async_get(msg["config_id"]) if msg.get("config_id") else None
+        )
+        previous_slug = previous_item.get("slug") if previous_item else None
+        item = await _store(hass).async_save_config(msg["config"], msg.get("config_id"))
         generated = write_dashboard(
             item["config"],
             hass.config.path(DASHBOARD_BASE_DIR),
@@ -212,7 +224,18 @@ async def _ws_render(
             generated.title,
             generated.icon,
             generated.filename,
+            previous_dashboard_key=(
+                dashboard_key_for_slug(previous_slug)
+                if previous_slug and previous_slug != generated.slug
+                else None
+            ),
         )
+        themes_installed = _install_themes(hass)
+        frontend_patch = patch_frontend_themes(hass.config.path("configuration.yaml"))
+        if previous_slug and previous_slug != generated.slug:
+            previous_dir = Path(hass.config.path(DASHBOARD_BASE_DIR)) / previous_slug
+            if previous_dir.exists():
+                shutil.rmtree(previous_dir)
     except ValueError as err:
         connection.send_error(msg["id"], "invalid_config", str(err))
         return
@@ -226,12 +249,55 @@ async def _ws_render(
             "filename": generated.filename,
             "files": generated.files,
             "config_patch": {
-                "changed": patch.changed,
-                "backup_path": patch.backup_path,
-                "restart_required": patch.changed,
+                "changed": patch.changed or frontend_patch.changed or themes_installed,
+                "backup_path": frontend_patch.backup_path or patch.backup_path,
+                "restart_required": patch.changed or frontend_patch.changed or themes_installed,
+                "themes_installed": themes_installed,
+                "themes_path": frontend_patch.themes_path,
             },
         },
     )
+
+
+def _install_themes(hass: HomeAssistant) -> bool:
+    """Install bundled HaCasa themes into Home Assistant's standard themes folder."""
+
+    source_candidates = [
+        Path(hass.config.path("www/community/HaCasa/themes/HaCasa")),
+        Path(__file__).parent / "themes/HaCasa",
+    ]
+    source_dir = next((path for path in source_candidates if path.exists()), None)
+    if source_dir is None:
+        return False
+
+    target_dir = Path(hass.config.path(_configured_themes_dir(hass), "HaCasa"))
+    changed = False
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    for source_file in source_dir.glob("*.yaml"):
+        target_file = target_dir / source_file.name
+        source = source_file.read_bytes()
+        if target_file.exists() and target_file.read_bytes() == source:
+            continue
+        target_file.write_bytes(source)
+        changed = True
+
+    return changed
+
+
+def _configured_themes_dir(hass: HomeAssistant) -> str:
+    config_path = Path(hass.config.path("configuration.yaml"))
+    if not config_path.exists():
+        return "themes"
+
+    source = config_path.read_text(encoding="utf-8")
+    match = re.search(
+        r"(?m)^\s+themes:\s+!include_dir_merge_named\s+['\"]?([^'\"\n]+)['\"]?\s*$",
+        source,
+    )
+    if not match:
+        return "themes"
+    return match.group(1).strip()
 
 
 def _registry_entities(hass: HomeAssistant) -> list[dict[str, Any]]:

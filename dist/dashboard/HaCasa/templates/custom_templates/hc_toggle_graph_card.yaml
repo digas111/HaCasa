@@ -1,0 +1,106 @@
+hc_toggle_graph_card:
+  template: hc_graph_card
+  variables:
+    toggle_entity:
+    active_color: var(--primary-color)
+    active_content_color: white
+    active_icon_background: var(--opacity-contrast-100)
+    inactive_background: var(--ha-card-background)
+    inactive_name_color: var(--subtext-color)
+    inactive_state_color: var(--primary-text-color)
+    inactive_icon_color: var(--icon-color-default)
+    inactive_icon_background: var(--background-icon-color-default)
+    show_graph_fill: true
+    show_graph_line: true
+    show_icon: true
+    graph_color: |
+      [[[
+        return states[variables.toggle_entity]?.state === 'on'
+          ? variables.active_content_color
+          : variables.active_color;
+      ]]]
+  state_display: |
+    [[[
+      const sensor = states[entity.entity_id];
+      const raw = Number(sensor?.state);
+      const unit = sensor?.attributes?.unit_of_measurement ?? '';
+
+      if (!Number.isFinite(raw)) return '—';
+      return unit ? `${Math.round(raw)} ${unit}` : `${Math.round(raw)}`;
+    ]]]
+  tap_action:
+    action: call-service
+    haptic: heavy
+    service: homeassistant.toggle
+    target:
+      entity_id: "[[[ return variables.toggle_entity ]]]"
+  hold_action:
+    action: more-info
+    haptic: heavy
+  styles:
+    card:
+      - background: |
+          [[[
+            return states[variables.toggle_entity]?.state === 'on'
+              ? variables.active_color
+              : variables.inactive_background;
+          ]]]
+      - padding: 10px 10px 14px 10px
+    name:
+      - font-size: 16px
+      - font-weight: 700
+      - margin-bottom: 8px
+      - color: |
+          [[[
+            return states[variables.toggle_entity]?.state === 'on'
+              ? variables.active_content_color
+              : variables.inactive_name_color;
+          ]]]
+    state:
+      - margin-top: 0
+      - color: |
+          [[[
+            return states[variables.toggle_entity]?.state === 'on'
+              ? variables.active_content_color
+              : variables.inactive_state_color;
+          ]]]
+    icon:
+      - justify-self: end
+      - color: |
+          [[[
+            return states[variables.toggle_entity]?.state === 'on'
+              ? variables.active_content_color
+              : variables.inactive_icon_color;
+          ]]]
+    img_cell:
+      - justify-self: end
+      - margin-right: 0
+      - margin-top: 0
+      - background: |
+          [[[
+            return states[variables.toggle_entity]?.state === 'on'
+              ? variables.active_icon_background
+              : variables.inactive_icon_background;
+          ]]]
+  custom_fields:
+    graph:
+      card:
+        tap_action:
+          action: call-service
+          haptic: heavy
+          service: homeassistant.toggle
+          target:
+            entity_id: "[[[ return variables.toggle_entity ]]]"
+        hold_action:
+          action: more-info
+          haptic: heavy
+        card_mod:
+          style: |
+            ha-card {
+              background: none;
+              box-shadow: none;
+              --ha-card-border-width: 0;
+            }
+            ha-spinner {
+              display: none !important;
+            }

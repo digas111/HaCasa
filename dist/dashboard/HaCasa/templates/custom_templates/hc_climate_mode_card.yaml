@@ -1,0 +1,4 @@
+hc_climate_mode_card:
+  template: hc_climate_card
+  variables:
+    mode_selector_hash:

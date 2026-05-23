@@ -22,6 +22,13 @@ __pycache__/
 # Generated documentation
 _site/
 
-# Home Assistant dashboard test harness
+# Legacy/generated Home Assistant local test artifacts
 .ha-test/
 .ha-test-backups/
+
+# Local Home Assistant VM sync config
+.ha-local.json
+.ha-local-sync-state.json
+.ha-local-ssh/
+hacasa-local-dev
+hacasa-local-dev.pub
